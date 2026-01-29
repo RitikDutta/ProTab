@@ -22,6 +22,51 @@ const DEFAULT_STATE = {
   zen: false
 };
 
+const UNIT_TABLES = {
+  length: {
+    label: "Length",
+    units: [
+      { id: "m", label: "Meters (m)", factor: 1 },
+      { id: "km", label: "Kilometers (km)", factor: 1000 },
+      { id: "cm", label: "Centimeters (cm)", factor: 0.01 },
+      { id: "mm", label: "Millimeters (mm)", factor: 0.001 },
+      { id: "in", label: "Inches (in)", factor: 0.0254 },
+      { id: "ft", label: "Feet (ft)", factor: 0.3048 },
+      { id: "yd", label: "Yards (yd)", factor: 0.9144 },
+      { id: "mi", label: "Miles (mi)", factor: 1609.344 }
+    ]
+  },
+  weight: {
+    label: "Weight",
+    units: [
+      { id: "kg", label: "Kilograms (kg)", factor: 1 },
+      { id: "g", label: "Grams (g)", factor: 0.001 },
+      { id: "lb", label: "Pounds (lb)", factor: 0.45359237 },
+      { id: "oz", label: "Ounces (oz)", factor: 0.028349523125 }
+    ]
+  },
+  volume: {
+    label: "Volume",
+    units: [
+      { id: "l", label: "Liters (L)", factor: 1 },
+      { id: "ml", label: "Milliliters (mL)", factor: 0.001 },
+      { id: "cup", label: "Cups (US)", factor: 0.2365882365 },
+      { id: "pt", label: "Pints (US)", factor: 0.473176473 },
+      { id: "qt", label: "Quarts (US)", factor: 0.946352946 },
+      { id: "gal", label: "Gallons (US)", factor: 3.785411784 },
+      { id: "floz", label: "Fluid oz (US)", factor: 0.0295735295625 }
+    ]
+  },
+  temp: {
+    label: "Temperature",
+    units: [
+      { id: "c", label: "Celsius (C)" },
+      { id: "f", label: "Fahrenheit (F)" },
+      { id: "k", label: "Kelvin (K)" }
+    ]
+  }
+};
+
 const elements = {
   greeting: document.querySelector("#greeting"),
   nameDisplay: document.querySelector("#nameDisplay"),
@@ -59,7 +104,30 @@ const elements = {
   timerDisplay: document.querySelector("#timerDisplay"),
   timerLabel: document.querySelector("#timerLabel"),
   timerControls: document.querySelector(".timer-controls"),
-  timerPresets: document.querySelector(".timer-presets")
+  timerPresets: document.querySelector(".timer-presets"),
+  calcForm: document.querySelector("#calcForm"),
+  calcInput: document.querySelector("#calcInput"),
+  calcResult: document.querySelector("#calcResult"),
+  unitCategory: document.querySelector("#unitCategory"),
+  unitValue: document.querySelector("#unitValue"),
+  unitFrom: document.querySelector("#unitFrom"),
+  unitTo: document.querySelector("#unitTo"),
+  unitSwap: document.querySelector("#unitSwap"),
+  unitResult: document.querySelector("#unitResult"),
+  percentValue: document.querySelector("#percentValue"),
+  percentBase: document.querySelector("#percentBase"),
+  percentCalc: document.querySelector("#percentCalc"),
+  percentResult: document.querySelector("#percentResult"),
+  changeOld: document.querySelector("#changeOld"),
+  changeNew: document.querySelector("#changeNew"),
+  changeCalc: document.querySelector("#changeCalc"),
+  changeResult: document.querySelector("#changeResult"),
+  splitTotal: document.querySelector("#splitTotal"),
+  splitPeople: document.querySelector("#splitPeople"),
+  splitTip: document.querySelector("#splitTip"),
+  splitTax: document.querySelector("#splitTax"),
+  splitCalc: document.querySelector("#splitCalc"),
+  splitResult: document.querySelector("#splitResult")
 };
 
 const state = loadState();
@@ -79,6 +147,7 @@ function init() {
   }
   renderTopSites();
   initTimer();
+  initTools();
   bindEvents();
 }
 
@@ -266,6 +335,92 @@ function bindEvents() {
     if (!mins) return;
     setTimerPreset(mins, event.target.textContent);
   });
+
+  if (elements.calcForm) {
+    elements.calcForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      updateCalculatorResult();
+    });
+  }
+
+  if (elements.calcInput) {
+    elements.calcInput.addEventListener("input", () => {
+      updateCalculatorResult();
+    });
+  }
+
+  if (elements.unitCategory) {
+    elements.unitCategory.addEventListener("change", () => {
+      populateUnitSelects(elements.unitCategory.value);
+      updateUnitResult();
+    });
+  }
+
+  if (elements.unitValue) {
+    elements.unitValue.addEventListener("input", updateUnitResult);
+  }
+
+  if (elements.unitFrom) {
+    elements.unitFrom.addEventListener("change", updateUnitResult);
+  }
+
+  if (elements.unitTo) {
+    elements.unitTo.addEventListener("change", updateUnitResult);
+  }
+
+  if (elements.unitSwap) {
+    elements.unitSwap.addEventListener("click", () => {
+      if (!elements.unitFrom || !elements.unitTo) return;
+      const currentFrom = elements.unitFrom.value;
+      elements.unitFrom.value = elements.unitTo.value;
+      elements.unitTo.value = currentFrom;
+      updateUnitResult();
+    });
+  }
+
+  if (elements.percentCalc) {
+    elements.percentCalc.addEventListener("click", updatePercentResult);
+  }
+
+  if (elements.percentValue) {
+    elements.percentValue.addEventListener("input", updatePercentResult);
+  }
+
+  if (elements.percentBase) {
+    elements.percentBase.addEventListener("input", updatePercentResult);
+  }
+
+  if (elements.changeCalc) {
+    elements.changeCalc.addEventListener("click", updateChangeResult);
+  }
+
+  if (elements.changeOld) {
+    elements.changeOld.addEventListener("input", updateChangeResult);
+  }
+
+  if (elements.changeNew) {
+    elements.changeNew.addEventListener("input", updateChangeResult);
+  }
+
+  if (elements.splitCalc) {
+    elements.splitCalc.addEventListener("click", updateSplitResult);
+  }
+
+  if (elements.splitTotal) {
+    elements.splitTotal.addEventListener("input", updateSplitResult);
+  }
+
+  if (elements.splitPeople) {
+    elements.splitPeople.addEventListener("input", updateSplitResult);
+  }
+
+  if (elements.splitTip) {
+    elements.splitTip.addEventListener("input", updateSplitResult);
+  }
+
+  if (elements.splitTax) {
+    elements.splitTax.addEventListener("input", updateSplitResult);
+  }
 }
 
 function bindSiteSearches() {
@@ -283,6 +438,17 @@ function bindSiteSearches() {
       window.location.href = target;
     });
   });
+}
+
+function initTools() {
+  if (elements.unitCategory) {
+    populateUnitSelects(elements.unitCategory.value || "length");
+    updateUnitResult();
+  }
+  updateCalculatorResult();
+  updatePercentResult();
+  updateChangeResult();
+  updateSplitResult();
 }
 
 function applyState() {
@@ -495,9 +661,194 @@ function renderTopSites() {
 
       anchor.append(title, url);
       li.appendChild(anchor);
-      elements.topSitesList.appendChild(li);
-    });
+    elements.topSitesList.appendChild(li);
   });
+  });
+}
+
+function updateCalculatorResult() {
+  if (!elements.calcInput || !elements.calcResult) return;
+  const outcome = evaluateExpression(elements.calcInput.value);
+  if (outcome.empty) {
+    elements.calcResult.textContent = "Result: —";
+    return;
+  }
+  if (outcome.error || outcome.value === null) {
+    elements.calcResult.textContent = "Result: Invalid";
+    return;
+  }
+  elements.calcResult.textContent = `Result: ${formatNumber(outcome.value, 8)}`;
+}
+
+function updateUnitResult() {
+  if (!elements.unitValue || !elements.unitFrom || !elements.unitTo || !elements.unitResult) return;
+  const value = parseNumber(elements.unitValue.value);
+  if (value === null) {
+    elements.unitResult.textContent = "—";
+    return;
+  }
+  const category = elements.unitCategory ? elements.unitCategory.value : "length";
+  const from = elements.unitFrom.value;
+  const to = elements.unitTo.value;
+  const result = convertUnits(value, from, to, category);
+  if (result === null) {
+    elements.unitResult.textContent = "—";
+    return;
+  }
+  elements.unitResult.textContent = `${formatNumber(result, 6)} ${unitLabel(category, to)}`;
+}
+
+function updatePercentResult() {
+  if (!elements.percentValue || !elements.percentBase || !elements.percentResult) return;
+  const percent = parseNumber(elements.percentValue.value);
+  const base = parseNumber(elements.percentBase.value);
+  if (percent === null || base === null) {
+    elements.percentResult.textContent = "—";
+    return;
+  }
+  const value = (base * percent) / 100;
+  elements.percentResult.textContent = `${formatNumber(percent, 2)}% of ${formatNumber(
+    base,
+    2
+  )} = ${formatNumber(value, 6)}`;
+}
+
+function updateChangeResult() {
+  if (!elements.changeOld || !elements.changeNew || !elements.changeResult) return;
+  const oldValue = parseNumber(elements.changeOld.value);
+  const newValue = parseNumber(elements.changeNew.value);
+  if (oldValue === null || newValue === null || oldValue === 0) {
+    elements.changeResult.textContent = "—";
+    return;
+  }
+  const change = ((newValue - oldValue) / oldValue) * 100;
+  elements.changeResult.textContent = `Change: ${formatNumber(change, 2)}%`;
+}
+
+function updateSplitResult() {
+  if (!elements.splitTotal || !elements.splitPeople || !elements.splitResult) return;
+  const total = parseNumber(elements.splitTotal.value);
+  const people = parseInt(elements.splitPeople.value, 10);
+  const tipPct = parseNumber(elements.splitTip ? elements.splitTip.value : "") || 0;
+  const taxPct = parseNumber(elements.splitTax ? elements.splitTax.value : "") || 0;
+  if (total === null || !Number.isFinite(people) || people <= 0) {
+    elements.splitResult.textContent = "—";
+    return;
+  }
+  const tipAmount = total * (tipPct / 100);
+  const taxAmount = total * (taxPct / 100);
+  const grandTotal = total + tipAmount + taxAmount;
+  const perPerson = grandTotal / people;
+  elements.splitResult.textContent = `Per person: ${formatCurrency(perPerson)} | Total: ${formatCurrency(
+    grandTotal
+  )}`;
+}
+
+function populateUnitSelects(category) {
+  if (!elements.unitFrom || !elements.unitTo) return;
+  const table = UNIT_TABLES[category] || UNIT_TABLES.length;
+  const fromValue = elements.unitFrom.value;
+  const toValue = elements.unitTo.value;
+
+  elements.unitFrom.innerHTML = "";
+  elements.unitTo.innerHTML = "";
+
+  table.units.forEach((unit) => {
+    const fromOption = document.createElement("option");
+    fromOption.value = unit.id;
+    fromOption.textContent = unit.label;
+    elements.unitFrom.appendChild(fromOption);
+
+    const toOption = document.createElement("option");
+    toOption.value = unit.id;
+    toOption.textContent = unit.label;
+    elements.unitTo.appendChild(toOption);
+  });
+
+  const unitIds = table.units.map((unit) => unit.id);
+  elements.unitFrom.value = unitIds.includes(fromValue) ? fromValue : unitIds[0];
+  elements.unitTo.value = unitIds.includes(toValue) ? toValue : unitIds[1] || unitIds[0];
+}
+
+function unitLabel(category, unitId) {
+  const table = UNIT_TABLES[category] || UNIT_TABLES.length;
+  const entry = table.units.find((unit) => unit.id === unitId);
+  return entry ? entry.id : unitId;
+}
+
+function convertUnits(value, from, to, category) {
+  const table = UNIT_TABLES[category] || UNIT_TABLES.length;
+  if (!table) return null;
+  if (category === "temp") {
+    return convertTemperature(value, from, to);
+  }
+  const fromUnit = table.units.find((unit) => unit.id === from);
+  const toUnit = table.units.find((unit) => unit.id === to);
+  if (!fromUnit || !toUnit) return null;
+  return (value * fromUnit.factor) / toUnit.factor;
+}
+
+function convertTemperature(value, from, to) {
+  if (from === to) return value;
+  let celsius = value;
+  if (from === "f") {
+    celsius = (value - 32) * (5 / 9);
+  } else if (from === "k") {
+    celsius = value - 273.15;
+  }
+
+  if (to === "f") {
+    return celsius * (9 / 5) + 32;
+  }
+  if (to === "k") {
+    return celsius + 273.15;
+  }
+  return celsius;
+}
+
+function evaluateExpression(expression) {
+  const cleaned = (expression || "").replace(/\s+/g, "");
+  if (!cleaned) return { value: null, error: null, empty: true };
+  if (!/^[0-9+\-*/().%]+$/.test(cleaned)) {
+    return { value: null, error: "invalid", empty: false };
+  }
+  try {
+    const result = Function(`"use strict"; return (${cleaned});`)();
+    if (typeof result !== "number" || !Number.isFinite(result)) {
+      return { value: null, error: "invalid", empty: false };
+    }
+    return { value: result, error: null, empty: false };
+  } catch (error) {
+    return { value: null, error: "invalid", empty: false };
+  }
+}
+
+function parseNumber(value) {
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function formatNumber(value, digits = 6) {
+  if (!Number.isFinite(value)) return "—";
+  const abs = Math.abs(value);
+  if (abs !== 0 && (abs < 1e-6 || abs >= 1e9)) {
+    return value.toExponential(3);
+  }
+  return new Intl.NumberFormat([], { maximumFractionDigits: digits }).format(value);
+}
+
+function formatCurrency(value) {
+  if (!Number.isFinite(value)) return "—";
+  try {
+    return new Intl.NumberFormat([], {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(value);
+  } catch (error) {
+    return `$${value.toFixed(2)}`;
+  }
 }
 
 function hasClockElements() {

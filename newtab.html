@@ -126,6 +126,72 @@
       </div>
     </section>
 
+    <section class="panel tools">
+      <div class="panel-title">Quick tools</div>
+      <div class="tool-grid">
+        <div class="tool-card">
+          <div class="tool-title">Calculator</div>
+          <form id="calcForm" class="tool-form">
+            <input id="calcInput" type="text" placeholder="e.g. (12.5+4)/3" autocomplete="off" />
+            <button type="submit">=</button>
+          </form>
+          <div class="tool-result" id="calcResult">Result: —</div>
+        </div>
+
+        <div class="tool-card">
+          <div class="tool-title">Unit convert</div>
+          <div class="tool-row">
+            <input id="unitValue" type="number" step="any" placeholder="Value" />
+            <select id="unitFrom"></select>
+            <select id="unitTo"></select>
+          </div>
+          <div class="tool-row">
+            <select id="unitCategory">
+              <option value="length">Length</option>
+              <option value="weight">Weight</option>
+              <option value="volume">Volume</option>
+              <option value="temp">Temperature</option>
+            </select>
+            <button type="button" id="unitSwap">Swap</button>
+          </div>
+          <div class="tool-result" id="unitResult">—</div>
+        </div>
+
+        <div class="tool-card">
+          <div class="tool-title">Percent</div>
+          <div class="tool-stack">
+            <div class="tool-row">
+              <input id="percentValue" type="number" step="any" placeholder="%" />
+              <input id="percentBase" type="number" step="any" placeholder="of" />
+              <button type="button" id="percentCalc">Calc</button>
+            </div>
+            <div class="tool-result" id="percentResult">—</div>
+            <div class="tool-row">
+              <input id="changeOld" type="number" step="any" placeholder="old" />
+              <input id="changeNew" type="number" step="any" placeholder="new" />
+              <button type="button" id="changeCalc">Δ%</button>
+            </div>
+            <div class="tool-result" id="changeResult">—</div>
+          </div>
+        </div>
+
+        <div class="tool-card">
+          <div class="tool-title">Split bill</div>
+          <div class="tool-row">
+            <input id="splitTotal" type="number" step="any" placeholder="Total" />
+            <input id="splitPeople" type="number" min="1" step="1" placeholder="People" />
+          </div>
+          <div class="tool-row">
+            <input id="splitTip" type="number" step="any" placeholder="Tip %" />
+            <input id="splitTax" type="number" step="any" placeholder="Tax %" />
+            <button type="button" id="splitCalc">Split</button>
+          </div>
+          <div class="tool-result" id="splitResult">—</div>
+        </div>
+      </div>
+      <div class="search-hints">Use + - * / ( ) in calculator. Unit categories include length, weight, volume, temp.</div>
+    </section>
+
     <section class="panel topsites">
       <div class="panel-title">Top sites</div>
       <ul id="topSitesList" class="card-list"></ul>
