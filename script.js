@@ -927,9 +927,10 @@ function updateSplitResult() {
   const taxAmount = total * (taxPct / 100);
   const grandTotal = total + tipAmount + taxAmount;
   const perPerson = grandTotal / people;
-  elements.splitResult.textContent = `Per person: ${formatCurrency(perPerson)} | Total: ${formatCurrency(
-    grandTotal
-  )}`;
+  elements.splitResult.textContent = `Per person: ${formatFixedNumber(
+    perPerson,
+    2
+  )} unit | Total: ${formatFixedNumber(grandTotal, 2)} unit`;
 }
 
 function populateUnitSelects(category) {
@@ -1196,6 +1197,14 @@ function formatCurrency(value) {
   } catch (error) {
     return `$${value.toFixed(2)}`;
   }
+}
+
+function formatFixedNumber(value, digits = 2) {
+  if (!Number.isFinite(value)) return "—";
+  return new Intl.NumberFormat([], {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits
+  }).format(value);
 }
 
 function hasClockElements() {
