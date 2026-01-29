@@ -28,10 +28,10 @@ const elements = {
   nameInput: document.querySelector("#nameInput"),
   clock: document.querySelector("#clock"),
   date: document.querySelector("#date"),
-  intentInput: document.querySelector("#intentInput"),
   searchForm: document.querySelector("#searchForm"),
   searchInput: document.querySelector("#searchInput"),
   engineSelect: document.querySelector("#engineSelect"),
+  siteSearches: document.querySelectorAll(".site-search"),
   linksList: document.querySelector("#linksList"),
   linksEmpty: document.querySelector("#linksEmpty"),
   linkForm: document.querySelector("#linkForm"),
@@ -73,44 +73,50 @@ function init() {
   renderLinks();
   renderTasks();
   renderNotes();
-  updateClock();
-  startClock();
+  if (hasClockElements()) {
+    updateClock();
+    startClock();
+  }
   renderTopSites();
   initTimer();
   bindEvents();
 }
 
 function bindEvents() {
-  elements.nameInput.addEventListener("input", (event) => {
-    state.name = event.target.value.trim() || "Friend";
-    saveState();
-    renderName();
-  });
+  if (elements.nameInput) {
+    elements.nameInput.addEventListener("input", (event) => {
+      state.name = event.target.value.trim() || "Friend";
+      saveState();
+      renderName();
+    });
+  }
 
-  elements.intentInput.addEventListener("input", (event) => {
-    state.intent = event.target.value;
-    state.intentDate = todayKey(new Date());
-    saveState();
-  });
+  if (elements.use24h) {
+    elements.use24h.addEventListener("change", (event) => {
+      state.use24h = event.target.checked;
+      saveState();
+      updateClock();
+    });
+  }
 
-  elements.use24h.addEventListener("change", (event) => {
-    state.use24h = event.target.checked;
-    saveState();
-    updateClock();
-  });
+  if (elements.engineSelect) {
+    elements.engineSelect.addEventListener("change", (event) => {
+      state.engine = event.target.value;
+      saveState();
+    });
+  }
 
-  elements.engineSelect.addEventListener("change", (event) => {
-    state.engine = event.target.value;
-    saveState();
-  });
+  if (elements.searchForm) {
+    elements.searchForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const query = elements.searchInput.value.trim();
+      if (!query) return;
+      const target = looksLikeUrl(query) ? normalizeUrl(query) : searchUrl(query);
+      window.location.href = target;
+    });
+  }
 
-  elements.searchForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const query = elements.searchInput.value.trim();
-    if (!query) return;
-    const target = looksLikeUrl(query) ? normalizeUrl(query) : searchUrl(query);
-    window.location.href = target;
-  });
+  bindSiteSearches();
 
   elements.linkForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -262,6 +268,23 @@ function bindEvents() {
   });
 }
 
+function bindSiteSearches() {
+  if (!elements.siteSearches || elements.siteSearches.length === 0) return;
+  elements.siteSearches.forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const input = form.querySelector("input");
+      if (!input) return;
+      const query = input.value.trim();
+      if (!query) return;
+      const template = form.dataset.template || "";
+      if (!template) return;
+      const target = template.replace("abc", encodeURIComponent(query));
+      window.location.href = target;
+    });
+  });
+}
+
 function applyState() {
   const today = todayKey(new Date());
   if (state.intentDate !== today) {
@@ -277,11 +300,18 @@ function applyState() {
   }
 
   renderName();
-  elements.nameInput.value = state.name === "Friend" ? "" : state.name;
-  elements.intentInput.value = state.intent;
-  elements.use24h.checked = state.use24h;
-  elements.engineSelect.value = state.engine;
-  elements.showTopSites.checked = state.showTopSites;
+  if (elements.nameInput) {
+    elements.nameInput.value = state.name === "Friend" ? "" : state.name;
+  }
+  if (elements.use24h) {
+    elements.use24h.checked = state.use24h;
+  }
+  if (elements.engineSelect) {
+    elements.engineSelect.value = state.engine;
+  }
+  if (elements.showTopSites) {
+    elements.showTopSites.checked = state.showTopSites;
+  }
   applyTheme();
   applyZen();
   applyTopSitesVisibility();
@@ -304,6 +334,7 @@ function applyTopSitesVisibility() {
 }
 
 function renderName() {
+  if (!elements.nameDisplay) return;
   elements.nameDisplay.textContent = state.name || "Friend";
 }
 
@@ -469,19 +500,30 @@ function renderTopSites() {
   });
 }
 
+function hasClockElements() {
+  return Boolean(elements.clock || elements.date || elements.greeting);
+}
+
 function startClock() {
   setInterval(updateClock, 1000);
 }
 
 function updateClock() {
+  if (!hasClockElements()) return;
   const now = new Date();
-  elements.clock.textContent = formatTime(now);
-  elements.date.textContent = new Intl.DateTimeFormat([], {
-    weekday: "long",
-    month: "short",
-    day: "numeric"
-  }).format(now);
-  elements.greeting.textContent = greetingForHour(now.getHours());
+  if (elements.clock) {
+    elements.clock.textContent = formatTime(now);
+  }
+  if (elements.date) {
+    elements.date.textContent = new Intl.DateTimeFormat([], {
+      weekday: "long",
+      month: "short",
+      day: "numeric"
+    }).format(now);
+  }
+  if (elements.greeting) {
+    elements.greeting.textContent = greetingForHour(now.getHours());
+  }
 }
 
 function formatTime(date) {

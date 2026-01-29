@@ -28,19 +28,42 @@
 
   <main class="grid">
     <section class="panel hero">
-      <div class="hero-label">Now</div>
-      <div class="hero-row">
-        <div>
-          <div class="greeting" id="greeting">Hello</div>
-          <div class="name" id="nameDisplay">Friend</div>
-        </div>
-        <div class="clock" id="clock">09:41</div>
+      <div class="panel-title">Multi search</div>
+      <div class="site-search-grid" id="siteSearchGrid">
+        <form class="site-search" data-template="https://www.youtube.com/results?search_query=abc">
+          <span class="site-icon" data-site="youtube" aria-hidden="true">YT</span>
+          <input type="search" placeholder="Search YouTube" aria-label="Search YouTube" autocomplete="off" />
+        </form>
+        <form class="site-search" data-template="https://www.amazon.com/s?k=abc">
+          <span class="site-icon" data-site="amazon" aria-hidden="true">AMZ</span>
+          <input type="search" placeholder="Search Amazon" aria-label="Search Amazon" autocomplete="off" />
+        </form>
+        <form class="site-search" data-template="https://www.google.com/search?q=abc">
+          <span class="site-icon" data-site="google" aria-hidden="true">G</span>
+          <input type="search" placeholder="Search Google" aria-label="Search Google" autocomplete="off" />
+        </form>
+        <form class="site-search" data-template="https://www.bing.com/search?q=abc">
+          <span class="site-icon" data-site="bing" aria-hidden="true">B</span>
+          <input type="search" placeholder="Search Bing" aria-label="Search Bing" autocomplete="off" />
+        </form>
+        <form class="site-search" data-template="https://duckduckgo.com/?q=abc">
+          <span class="site-icon" data-site="duckduckgo" aria-hidden="true">DDG</span>
+          <input type="search" placeholder="Search DuckDuckGo" aria-label="Search DuckDuckGo" autocomplete="off" />
+        </form>
+        <form class="site-search" data-template="https://twitter.com/search?q=abc">
+          <span class="site-icon" data-site="twitter" aria-hidden="true">X</span>
+          <input type="search" placeholder="Search X" aria-label="Search X" autocomplete="off" />
+        </form>
+        <form class="site-search" data-template="https://www.reddit.com/search/?q=abc">
+          <span class="site-icon" data-site="reddit" aria-hidden="true">R</span>
+          <input type="search" placeholder="Search Reddit" aria-label="Search Reddit" autocomplete="off" />
+        </form>
+        <form class="site-search" data-template="https://www.linkedin.com/search/results/all/?keywords=abc">
+          <span class="site-icon" data-site="linkedin" aria-hidden="true">IN</span>
+          <input type="search" placeholder="Search LinkedIn" aria-label="Search LinkedIn" autocomplete="off" />
+        </form>
       </div>
-      <div class="date" id="date">Tuesday, Jan 16</div>
-      <label class="field">
-        <span>Daily focus</span>
-        <input id="intentInput" type="text" placeholder="Pick the one thing that matters" />
-      </label>
+      <div class="search-hints">Press Enter in a box to search that site.</div>
     </section>
 
     <section class="panel search">

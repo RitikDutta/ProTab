@@ -245,45 +245,92 @@ body {
 .hero {
   grid-column: span 5;
   grid-row: span 2;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
-.hero-label {
-  font-size: 12px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.hero-row {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
+.site-search-grid {
+  display: grid;
   gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.greeting {
-  font-size: 18px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--muted);
+.site-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.75);
+  transition: border 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  min-width: 0;
 }
 
-.name {
-  font-family: var(--font-display);
-  font-size: 30px;
-  line-height: 1.1;
+.site-search:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(20, 20, 28, 0.12);
 }
 
-.clock {
-  font-family: var(--font-mono);
-  font-size: 44px;
-  letter-spacing: 1px;
+.site-search:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.18);
 }
 
-.date {
+.site-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  padding: 8px 4px;
   font-size: 14px;
-  color: var(--muted);
+}
+
+.site-search input:focus {
+  box-shadow: none;
+}
+
+.site-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: #fff;
+}
+
+.site-icon[data-site="youtube"] {
+  background: #ff0033;
+}
+
+.site-icon[data-site="amazon"] {
+  background: #232f3e;
+}
+
+.site-icon[data-site="google"] {
+  background: #4285f4;
+}
+
+.site-icon[data-site="bing"] {
+  background: #008373;
+}
+
+.site-icon[data-site="duckduckgo"] {
+  background: #de5833;
+}
+
+.site-icon[data-site="twitter"] {
+  background: #111111;
+}
+
+.site-icon[data-site="reddit"] {
+  background: #ff4500;
+}
+
+.site-icon[data-site="linkedin"] {
+  background: #0a66c2;
 }
 
 .search {
@@ -779,7 +826,8 @@ body.hide-top-sites .topsites {
   }
 
   .search-form,
-  .inline-form {
+  .inline-form,
+  .site-search-grid {
     grid-template-columns: 1fr;
   }
 
@@ -799,14 +847,6 @@ body.hide-top-sites .topsites {
     padding: 20px 18px 8px;
   }
 
-  .hero-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .clock {
-    font-size: 36px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
