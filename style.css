@@ -497,6 +497,13 @@ body {
   flex: 0 0 auto;
 }
 
+.tool-note {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: right;
+  align-self: center;
+}
+
 .tool-stack {
   display: flex;
   flex-direction: column;

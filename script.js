@@ -66,6 +66,43 @@ const UNIT_TABLES = {
   }
 };
 
+const CURRENCY_API = {
+  list: "https://api.frankfurter.dev/v1/currencies",
+  latest: "https://api.frankfurter.dev/v1/latest"
+};
+
+const CURRENCY_FALLBACK = {
+  USD: "US Dollar",
+  EUR: "Euro",
+  INR: "Indian Rupee",
+  GBP: "British Pound",
+  JPY: "Japanese Yen",
+  AUD: "Australian Dollar",
+  CAD: "Canadian Dollar",
+  CHF: "Swiss Franc",
+  CNY: "Chinese Yuan",
+  SGD: "Singapore Dollar",
+  AED: "UAE Dirham",
+  NZD: "New Zealand Dollar",
+  SEK: "Swedish Krona",
+  NOK: "Norwegian Krone",
+  KRW: "South Korean Won",
+  ZAR: "South African Rand",
+  MXN: "Mexican Peso",
+  BRL: "Brazilian Real",
+  TRY: "Turkish Lira",
+  HKD: "Hong Kong Dollar",
+  IDR: "Indonesian Rupiah",
+  THB: "Thai Baht",
+  MYR: "Malaysian Ringgit",
+  PHP: "Philippine Peso",
+  PLN: "Polish Zloty",
+  DKK: "Danish Krone",
+  HUF: "Hungarian Forint",
+  CZK: "Czech Koruna",
+  ILS: "Israeli Shekel"
+};
+
 const elements = {
   greeting: document.querySelector("#greeting"),
   nameDisplay: document.querySelector("#nameDisplay"),
@@ -104,6 +141,12 @@ const elements = {
   calcPad: document.querySelector("#calcPad"),
   calcExpression: document.querySelector("#calcExpression"),
   calcBigResult: document.querySelector("#calcBigResult"),
+  currencyAmount: document.querySelector("#currencyAmount"),
+  currencyFrom: document.querySelector("#currencyFrom"),
+  currencyTo: document.querySelector("#currencyTo"),
+  currencySwap: document.querySelector("#currencySwap"),
+  currencyResult: document.querySelector("#currencyResult"),
+  currencyStatus: document.querySelector("#currencyStatus"),
   unitCategory: document.querySelector("#unitCategory"),
   unitValue: document.querySelector("#unitValue"),
   unitFrom: document.querySelector("#unitFrom"),
@@ -130,6 +173,9 @@ const state = loadState();
 let timer = loadTimer();
 let editingLinkId = null;
 let calcExpression = "";
+let currencyRequestId = 0;
+let currencyUpdateTimer = null;
+const currencyRatesCache = new Map();
 
 init();
 
@@ -341,6 +387,34 @@ function bindEvents() {
     });
   }
 
+  if (elements.currencyAmount) {
+    elements.currencyAmount.addEventListener("input", () => {
+      scheduleCurrencyUpdate();
+    });
+  }
+
+  if (elements.currencyFrom) {
+    elements.currencyFrom.addEventListener("change", () => {
+      updateCurrencyResult();
+    });
+  }
+
+  if (elements.currencyTo) {
+    elements.currencyTo.addEventListener("change", () => {
+      updateCurrencyResult();
+    });
+  }
+
+  if (elements.currencySwap) {
+    elements.currencySwap.addEventListener("click", () => {
+      if (!elements.currencyFrom || !elements.currencyTo) return;
+      const currentFrom = elements.currencyFrom.value;
+      elements.currencyFrom.value = elements.currencyTo.value;
+      elements.currencyTo.value = currentFrom;
+      updateCurrencyResult();
+    });
+  }
+
   if (elements.unitCategory) {
     elements.unitCategory.addEventListener("change", () => {
       populateUnitSelects(elements.unitCategory.value);
@@ -438,6 +512,7 @@ function initTools() {
     updateUnitResult();
   }
   initCalculator();
+  initCurrencyTool();
   updatePercentResult();
   updateChangeResult();
   updateSplitResult();
@@ -657,6 +732,140 @@ function updateCalcDisplay() {
   }
   const formatted = formatNumber(outcome.value, 8);
   elements.calcBigResult.textContent = `= ${formatted}`;
+}
+
+async function initCurrencyTool() {
+  if (!elements.currencyFrom || !elements.currencyTo) return;
+  const currencyMap = await fetchCurrencyList();
+  const mapToUse = currencyMap && Object.keys(currencyMap).length ? currencyMap : CURRENCY_FALLBACK;
+  populateCurrencyOptions(mapToUse);
+
+  const available = new Set(Object.keys(mapToUse));
+  const defaultFrom = available.has("INR") ? "INR" : elements.currencyFrom.value;
+  const defaultTo = available.has("USD") ? "USD" : elements.currencyTo.value;
+  elements.currencyFrom.value = defaultFrom || elements.currencyFrom.value;
+  elements.currencyTo.value = defaultTo || elements.currencyTo.value;
+
+  updateCurrencyResult();
+}
+
+function scheduleCurrencyUpdate(delay = 250) {
+  if (currencyUpdateTimer) {
+    clearTimeout(currencyUpdateTimer);
+  }
+  currencyUpdateTimer = setTimeout(() => {
+    updateCurrencyResult();
+  }, delay);
+}
+
+async function updateCurrencyResult() {
+  if (!elements.currencyAmount || !elements.currencyFrom || !elements.currencyTo || !elements.currencyResult) {
+    return;
+  }
+  const amount = parseNumber(elements.currencyAmount.value);
+  const from = elements.currencyFrom.value;
+  const to = elements.currencyTo.value;
+
+  if (amount === null || !from || !to) {
+    elements.currencyResult.textContent = "—";
+    setCurrencyStatus("");
+    return;
+  }
+
+  if (from === to) {
+    elements.currencyResult.textContent = `${formatNumber(amount, 6)} ${to}`;
+    setCurrencyStatus("Same currency");
+    return;
+  }
+
+  const requestId = (currencyRequestId += 1);
+  setCurrencyStatus("Fetching rate...");
+  const rateData = await getCurrencyRate(from, to);
+  if (requestId !== currencyRequestId) return;
+
+  if (!rateData) {
+    elements.currencyResult.textContent = "—";
+    setCurrencyStatus("Rate unavailable");
+    return;
+  }
+
+  const converted = amount * rateData.rate;
+  elements.currencyResult.textContent = `${formatNumber(converted, 6)} ${to}`;
+  setCurrencyStatus(rateData.date ? `Updated ${rateData.date}` : "Updated");
+}
+
+function setCurrencyStatus(message) {
+  if (!elements.currencyStatus) return;
+  elements.currencyStatus.textContent = message || "Live rates";
+}
+
+async function fetchCurrencyList() {
+  try {
+    const response = await fetch(CURRENCY_API.list);
+    if (!response.ok) return null;
+    const data = await response.json();
+    if (!data || typeof data !== "object") return null;
+    return data;
+  } catch (error) {
+    return null;
+  }
+}
+
+function populateCurrencyOptions(currencyMap) {
+  if (!elements.currencyFrom || !elements.currencyTo) return;
+  const entries = Object.entries(currencyMap)
+    .map(([code, name]) => ({ code, name }))
+    .sort((a, b) => a.code.localeCompare(b.code));
+
+  elements.currencyFrom.innerHTML = "";
+  elements.currencyTo.innerHTML = "";
+
+  entries.forEach((entry) => {
+    const optionFrom = document.createElement("option");
+    optionFrom.value = entry.code;
+    optionFrom.textContent = `${entry.code} — ${entry.name}`;
+    elements.currencyFrom.appendChild(optionFrom);
+
+    const optionTo = document.createElement("option");
+    optionTo.value = entry.code;
+    optionTo.textContent = `${entry.code} — ${entry.name}`;
+    elements.currencyTo.appendChild(optionTo);
+  });
+
+  if (entries.length >= 2) {
+    elements.currencyFrom.value = entries[0].code;
+    elements.currencyTo.value = entries[1].code;
+  } else if (entries.length === 1) {
+    elements.currencyFrom.value = entries[0].code;
+    elements.currencyTo.value = entries[0].code;
+  }
+}
+
+async function getCurrencyRate(base, symbol) {
+  const cached = currencyRatesCache.get(base);
+  if (cached && cached.rates && typeof cached.rates[symbol] === "number") {
+    return { rate: cached.rates[symbol], date: cached.date };
+  }
+
+  try {
+    const url = `${CURRENCY_API.latest}?base=${encodeURIComponent(base)}&symbols=${encodeURIComponent(
+      symbol
+    )}`;
+    const response = await fetch(url);
+    if (!response.ok) return null;
+    const data = await response.json();
+    if (!data || !data.rates || typeof data.rates[symbol] !== "number") return null;
+
+    const mergedRates = { ...(cached?.rates || {}), ...data.rates };
+    currencyRatesCache.set(base, {
+      rates: mergedRates,
+      date: data.date || "",
+      timestamp: Date.now()
+    });
+    return { rate: data.rates[symbol], date: data.date || "" };
+  } catch (error) {
+    return null;
+  }
 }
 
 function updateUnitResult() {

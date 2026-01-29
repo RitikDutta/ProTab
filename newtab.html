@@ -130,6 +130,20 @@
       <div class="panel-title">Quick tools</div>
       <div class="tool-grid">
         <div class="tool-card">
+          <div class="tool-title">Currency</div>
+          <div class="tool-row">
+            <input id="currencyAmount" type="number" step="any" placeholder="Amount" />
+            <select id="currencyFrom"></select>
+            <select id="currencyTo"></select>
+          </div>
+          <div class="tool-row">
+            <button type="button" id="currencySwap">Swap</button>
+            <div class="tool-note" id="currencyStatus">Live rates</div>
+          </div>
+          <div class="tool-result" id="currencyResult">—</div>
+        </div>
+
+        <div class="tool-card">
           <div class="tool-title">Unit convert</div>
           <div class="tool-row">
             <input id="unitValue" type="number" step="any" placeholder="Value" />
