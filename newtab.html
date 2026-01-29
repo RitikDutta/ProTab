@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>New Tab</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-layer"></div>
+  <div class="bg-orb orb-a"></div>
+  <div class="bg-orb orb-b"></div>
+  <div class="bg-grid"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark"></span>
+      <div>
+        <div class="brand-title">Atlas</div>
+        <div class="brand-subtitle">New tab dashboard</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="chip" id="zenToggle" type="button">Zen</button>
+      <button class="chip" id="resetBtn" type="button">Reset</button>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="panel hero">
+      <div class="hero-label">Now</div>
+      <div class="hero-row">
+        <div>
+          <div class="greeting" id="greeting">Hello</div>
+          <div class="name" id="nameDisplay">Friend</div>
+        </div>
+        <div class="clock" id="clock">09:41</div>
+      </div>
+      <div class="date" id="date">Tuesday, Jan 16</div>
+      <label class="field">
+        <span>Daily focus</span>
+        <input id="intentInput" type="text" placeholder="Pick the one thing that matters" />
+      </label>
+    </section>
+
+    <section class="panel search">
+      <div class="panel-title">Search</div>
+      <form id="searchForm" class="search-form">
+        <input id="searchInput" type="text" placeholder="Search the web or paste a link" autocomplete="off" />
+        <select id="engineSelect">
+          <option value="google">Google</option>
+          <option value="ddg">DuckDuckGo</option>
+          <option value="youtube">YouTube</option>
+          <option value="github">GitHub</option>
+        </select>
+        <button type="submit">Go</button>
+      </form>
+      <div class="search-hints">Press Enter to search. Paste a URL to open directly.</div>
+    </section>
+
+    <section class="panel links">
+      <div class="panel-title">Quick links</div>
+      <ul id="linksList" class="pill-list"></ul>
+      <div id="linksEmpty" class="empty-state">Add destinations you use every day.</div>
+      <form id="linkForm" class="inline-form link-form">
+        <input id="linkTitle" type="text" placeholder="Label (optional)" />
+        <input id="linkUrl" type="url" placeholder="https://example.com" />
+        <input id="linkIcon" type="text" placeholder="Icon URL (optional)" />
+        <button type="submit">Add</button>
+      </form>
+    </section>
+
+    <section class="panel tasks">
+      <div class="panel-title">Tasks</div>
+      <ul id="taskList" class="task-list"></ul>
+      <div id="tasksEmpty" class="empty-state">Keep it short. Finish three.</div>
+      <form id="taskForm" class="inline-form">
+        <input id="taskInput" type="text" placeholder="New task" />
+        <button type="submit">Add</button>
+      </form>
+    </section>
+
+    <section class="panel notes">
+      <div class="panel-title">Notes</div>
+      <textarea id="notesInput" placeholder="Scratchpad for ideas, snippets, and reminders."></textarea>
+    </section>
+
+    <section class="panel focus">
+      <div class="panel-title">Focus timer</div>
+      <div class="timer-ring" id="timerRing">
+        <div class="timer-time" id="timerDisplay">25:00</div>
+        <div class="timer-label" id="timerLabel">Pomodoro</div>
+      </div>
+      <div class="timer-controls">
+        <button type="button" data-timer="start">Start</button>
+        <button type="button" data-timer="pause">Pause</button>
+        <button type="button" data-timer="reset">Reset</button>
+      </div>
+      <div class="timer-presets">
+        <button type="button" data-mins="25">Pomodoro</button>
+        <button type="button" data-mins="50">Deep work</button>
+        <button type="button" data-mins="5">Break</button>
+      </div>
+    </section>
+
+    <section class="panel topsites">
+      <div class="panel-title">Top sites</div>
+      <ul id="topSitesList" class="card-list"></ul>
+      <div id="topSitesEmpty" class="empty-state">No top sites yet.</div>
+    </section>
+
+    <section class="panel settings">
+      <div class="panel-title">Preferences</div>
+      <div class="settings-grid">
+        <label class="field">
+          <span>Name</span>
+          <input id="nameInput" type="text" placeholder="Your name" />
+        </label>
+        <label class="toggle">
+          <input id="use24h" type="checkbox" />
+          <span>24h clock</span>
+        </label>
+        <label class="toggle">
+          <input id="showTopSites" type="checkbox" />
+          <span>Show top sites</span>
+        </label>
+      </div>
+      <div class="panel-subtitle">Themes</div>
+      <div class="theme-row" id="themeRow">
+        <button class="theme-swatch" type="button" data-theme="ember" aria-label="Ember"></button>
+        <button class="theme-swatch" type="button" data-theme="aegean" aria-label="Aegean"></button>
+        <button class="theme-swatch" type="button" data-theme="citrus" aria-label="Citrus"></button>
+        <button class="theme-swatch" type="button" data-theme="slate" aria-label="Slate"></button>
+      </div>
+    </section>
+  </main>
+
+  <div id="linkModal" class="modal" aria-hidden="true">
+    <div class="modal-backdrop" data-modal-close></div>
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="linkModalTitle">
+      <div class="modal-header">
+        <div id="linkModalTitle" class="modal-title">Edit quick link</div>
+        <button type="button" class="icon-btn modal-close" data-modal-close aria-label="Close">x</button>
+      </div>
+      <form id="linkEditForm" class="modal-form">
+        <label class="field">
+          <span>Label (optional)</span>
+          <input id="linkEditTitle" type="text" placeholder="Label" />
+        </label>
+        <label class="field">
+          <span>URL</span>
+          <input id="linkEditUrl" type="url" placeholder="https://example.com" required />
+        </label>
+        <label class="field">
+          <span>Icon URL (optional)</span>
+          <input id="linkEditIcon" type="text" placeholder="https://example.com/icon.png" />
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="ghost-btn" data-modal-close>Cancel</button>
+          <button type="submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

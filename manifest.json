@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "My Custom New Tab",
+  "version": "1.1",
+  "description": "A personalized dashboard for every new tab.",
+  "permissions": [
+    "topSites"
+  ],
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  }
+}
