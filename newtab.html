@@ -130,15 +130,6 @@
       <div class="panel-title">Quick tools</div>
       <div class="tool-grid">
         <div class="tool-card">
-          <div class="tool-title">Calculator</div>
-          <form id="calcForm" class="tool-form">
-            <input id="calcInput" type="text" placeholder="e.g. (12.5+4)/3" autocomplete="off" />
-            <button type="submit">=</button>
-          </form>
-          <div class="tool-result" id="calcResult">Result: —</div>
-        </div>
-
-        <div class="tool-card">
           <div class="tool-title">Unit convert</div>
           <div class="tool-row">
             <input id="unitValue" type="number" step="any" placeholder="Value" />
@@ -189,13 +180,43 @@
           <div class="tool-result" id="splitResult">—</div>
         </div>
       </div>
-      <div class="search-hints">Use + - * / ( ) in calculator. Unit categories include length, weight, volume, temp.</div>
+      <div class="search-hints">Unit categories include length, weight, volume, temp.</div>
     </section>
 
-    <section class="panel topsites">
-      <div class="panel-title">Top sites</div>
-      <ul id="topSitesList" class="card-list"></ul>
-      <div id="topSitesEmpty" class="empty-state">No top sites yet.</div>
+    <section class="panel calculator">
+      <div class="panel-title">Calculator</div>
+      <div class="calc-display">
+        <div class="calc-expression" id="calcExpression">0</div>
+        <div class="calc-result" id="calcBigResult">= 0</div>
+      </div>
+      <div class="calc-keypad" id="calcPad">
+        <button type="button" data-action="clear">C</button>
+        <button type="button" data-action="back">DEL</button>
+        <button type="button" data-value="(">(</button>
+        <button type="button" data-value=")">)</button>
+
+        <button type="button" data-value="7">7</button>
+        <button type="button" data-value="8">8</button>
+        <button type="button" data-value="9">9</button>
+        <button type="button" data-value="/">/</button>
+
+        <button type="button" data-value="4">4</button>
+        <button type="button" data-value="5">5</button>
+        <button type="button" data-value="6">6</button>
+        <button type="button" data-value="*">*</button>
+
+        <button type="button" data-value="1">1</button>
+        <button type="button" data-value="2">2</button>
+        <button type="button" data-value="3">3</button>
+        <button type="button" data-value="-">-</button>
+
+        <button type="button" data-value="0">0</button>
+        <button type="button" data-value=".">.</button>
+        <button type="button" data-value="%">%</button>
+        <button type="button" data-value="+">+</button>
+
+        <button type="button" class="calc-equals" data-action="equals">=</button>
+      </div>
     </section>
 
     <section class="panel settings">
@@ -208,10 +229,6 @@
         <label class="toggle">
           <input id="use24h" type="checkbox" />
           <span>24h clock</span>
-        </label>
-        <label class="toggle">
-          <input id="showTopSites" type="checkbox" />
-          <span>Show top sites</span>
         </label>
       </div>
       <div class="panel-subtitle">Themes</div>

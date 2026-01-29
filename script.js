@@ -18,7 +18,6 @@ const DEFAULT_STATE = {
   links: DEFAULT_LINKS.slice(),
   tasks: [],
   notes: "",
-  showTopSites: true,
   zen: false
 };
 
@@ -94,9 +93,6 @@ const elements = {
   taskInput: document.querySelector("#taskInput"),
   notesInput: document.querySelector("#notesInput"),
   use24h: document.querySelector("#use24h"),
-  showTopSites: document.querySelector("#showTopSites"),
-  topSitesList: document.querySelector("#topSitesList"),
-  topSitesEmpty: document.querySelector("#topSitesEmpty"),
   themeRow: document.querySelector("#themeRow"),
   zenToggle: document.querySelector("#zenToggle"),
   resetBtn: document.querySelector("#resetBtn"),
@@ -105,9 +101,9 @@ const elements = {
   timerLabel: document.querySelector("#timerLabel"),
   timerControls: document.querySelector(".timer-controls"),
   timerPresets: document.querySelector(".timer-presets"),
-  calcForm: document.querySelector("#calcForm"),
-  calcInput: document.querySelector("#calcInput"),
-  calcResult: document.querySelector("#calcResult"),
+  calcPad: document.querySelector("#calcPad"),
+  calcExpression: document.querySelector("#calcExpression"),
+  calcBigResult: document.querySelector("#calcBigResult"),
   unitCategory: document.querySelector("#unitCategory"),
   unitValue: document.querySelector("#unitValue"),
   unitFrom: document.querySelector("#unitFrom"),
@@ -133,6 +129,7 @@ const elements = {
 const state = loadState();
 let timer = loadTimer();
 let editingLinkId = null;
+let calcExpression = "";
 
 init();
 
@@ -145,7 +142,6 @@ function init() {
     updateClock();
     startClock();
   }
-  renderTopSites();
   initTimer();
   initTools();
   bindEvents();
@@ -289,13 +285,6 @@ function bindEvents() {
     if (isModalOpen()) closeLinkModal();
   });
 
-  elements.showTopSites.addEventListener("change", (event) => {
-    state.showTopSites = event.target.checked;
-    saveState();
-    applyTopSitesVisibility();
-    renderTopSites();
-  });
-
   elements.themeRow.addEventListener("click", (event) => {
     const swatch = event.target.closest("[data-theme]");
     if (!swatch) return;
@@ -336,16 +325,19 @@ function bindEvents() {
     setTimerPreset(mins, event.target.textContent);
   });
 
-  if (elements.calcForm) {
-    elements.calcForm.addEventListener("submit", (event) => {
-      event.preventDefault();
-      updateCalculatorResult();
-    });
-  }
-
-  if (elements.calcInput) {
-    elements.calcInput.addEventListener("input", () => {
-      updateCalculatorResult();
+  if (elements.calcPad) {
+    elements.calcPad.addEventListener("click", (event) => {
+      const button = event.target.closest("button");
+      if (!button) return;
+      const action = button.dataset.action;
+      const value = button.dataset.value;
+      if (action) {
+        handleCalcAction(action);
+        return;
+      }
+      if (value) {
+        appendCalcValue(value);
+      }
     });
   }
 
@@ -445,7 +437,7 @@ function initTools() {
     populateUnitSelects(elements.unitCategory.value || "length");
     updateUnitResult();
   }
-  updateCalculatorResult();
+  initCalculator();
   updatePercentResult();
   updateChangeResult();
   updateSplitResult();
@@ -475,12 +467,8 @@ function applyState() {
   if (elements.engineSelect) {
     elements.engineSelect.value = state.engine;
   }
-  if (elements.showTopSites) {
-    elements.showTopSites.checked = state.showTopSites;
-  }
   applyTheme();
   applyZen();
-  applyTopSitesVisibility();
   saveState();
 }
 
@@ -493,10 +481,6 @@ function applyTheme() {
 
 function applyZen() {
   document.body.classList.toggle("zen", state.zen);
-}
-
-function applyTopSitesVisibility() {
-  document.body.classList.toggle("hide-top-sites", !state.showTopSites);
 }
 
 function renderName() {
@@ -621,63 +605,58 @@ function renderNotes() {
   elements.notesInput.value = state.notes;
 }
 
-function renderTopSites() {
-  elements.topSitesList.innerHTML = "";
-  elements.topSitesEmpty.style.display = "block";
-  elements.topSitesEmpty.textContent = "Loading top sites...";
-
-  if (!state.showTopSites) {
-    elements.topSitesEmpty.textContent = "Top sites hidden.";
-    return;
-  }
-
-  if (!window.chrome || !chrome.topSites || !chrome.topSites.get) {
-    elements.topSitesEmpty.textContent = "Top sites unavailable.";
-    return;
-  }
-
-  chrome.topSites.get((sites) => {
-    elements.topSitesList.innerHTML = "";
-    if (!sites || sites.length === 0) {
-      elements.topSitesEmpty.textContent = "No top sites yet.";
-      return;
-    }
-    elements.topSitesEmpty.textContent = "";
-    elements.topSitesEmpty.style.display = "none";
-    sites.slice(0, 8).forEach((site) => {
-      const li = document.createElement("li");
-
-      const anchor = document.createElement("a");
-      anchor.href = site.url;
-      anchor.className = "card-link";
-
-      const title = document.createElement("span");
-      title.className = "card-title";
-      title.textContent = site.title || domainFromUrl(site.url);
-
-      const url = document.createElement("span");
-      url.className = "card-url";
-      url.textContent = domainFromUrl(site.url);
-
-      anchor.append(title, url);
-      li.appendChild(anchor);
-    elements.topSitesList.appendChild(li);
-  });
-  });
+function initCalculator() {
+  if (!elements.calcExpression || !elements.calcBigResult) return;
+  calcExpression = "";
+  updateCalcDisplay();
 }
 
-function updateCalculatorResult() {
-  if (!elements.calcInput || !elements.calcResult) return;
-  const outcome = evaluateExpression(elements.calcInput.value);
+function appendCalcValue(value) {
+  if (!elements.calcExpression || !elements.calcBigResult) return;
+  if (calcExpression === "0" && /^[0-9]$/.test(value)) {
+    calcExpression = value;
+  } else {
+    calcExpression += value;
+  }
+  updateCalcDisplay();
+}
+
+function handleCalcAction(action) {
+  if (!elements.calcExpression || !elements.calcBigResult) return;
+  if (action === "clear") {
+    calcExpression = "";
+    updateCalcDisplay();
+    return;
+  }
+  if (action === "back") {
+    calcExpression = calcExpression.slice(0, -1);
+    updateCalcDisplay();
+    return;
+  }
+  if (action === "equals") {
+    const outcome = evaluateExpression(calcExpression);
+    if (!outcome.error && outcome.value !== null) {
+      calcExpression = String(outcome.value);
+    }
+    updateCalcDisplay();
+  }
+}
+
+function updateCalcDisplay() {
+  const display = calcExpression || "0";
+  elements.calcExpression.textContent = display;
+
+  const outcome = evaluateExpression(calcExpression);
   if (outcome.empty) {
-    elements.calcResult.textContent = "Result: —";
+    elements.calcBigResult.textContent = "= 0";
     return;
   }
   if (outcome.error || outcome.value === null) {
-    elements.calcResult.textContent = "Result: Invalid";
+    elements.calcBigResult.textContent = "= Invalid";
     return;
   }
-  elements.calcResult.textContent = `Result: ${formatNumber(outcome.value, 8)}`;
+  const formatted = formatNumber(outcome.value, 8);
+  elements.calcBigResult.textContent = `= ${formatted}`;
 }
 
 function updateUnitResult() {
@@ -746,7 +725,8 @@ function updateSplitResult() {
 
 function populateUnitSelects(category) {
   if (!elements.unitFrom || !elements.unitTo) return;
-  const table = UNIT_TABLES[category] || UNIT_TABLES.length;
+  const table = UNIT_TABLES[category];
+  if (!table) return;
   const fromValue = elements.unitFrom.value;
   const toValue = elements.unitTo.value;
 
@@ -771,13 +751,14 @@ function populateUnitSelects(category) {
 }
 
 function unitLabel(category, unitId) {
-  const table = UNIT_TABLES[category] || UNIT_TABLES.length;
+  const table = UNIT_TABLES[category];
+  if (!table) return unitId;
   const entry = table.units.find((unit) => unit.id === unitId);
   return entry ? entry.id : unitId;
 }
 
 function convertUnits(value, from, to, category) {
-  const table = UNIT_TABLES[category] || UNIT_TABLES.length;
+  const table = UNIT_TABLES[category];
   if (!table) return null;
   if (category === "temp") {
     return convertTemperature(value, from, to);
@@ -809,18 +790,175 @@ function convertTemperature(value, from, to) {
 function evaluateExpression(expression) {
   const cleaned = (expression || "").replace(/\s+/g, "");
   if (!cleaned) return { value: null, error: null, empty: true };
-  if (!/^[0-9+\-*/().%]+$/.test(cleaned)) {
+  const tokens = tokenizeExpression(cleaned);
+  if (!tokens) return { value: null, error: "invalid", empty: false };
+  const rpn = toRpn(tokens);
+  if (!rpn) return { value: null, error: "invalid", empty: false };
+  const result = evalRpn(rpn);
+  if (!Number.isFinite(result)) {
     return { value: null, error: "invalid", empty: false };
   }
-  try {
-    const result = Function(`"use strict"; return (${cleaned});`)();
-    if (typeof result !== "number" || !Number.isFinite(result)) {
-      return { value: null, error: "invalid", empty: false };
+  return { value: result, error: null, empty: false };
+}
+
+function tokenizeExpression(expression) {
+  const tokens = [];
+  let index = 0;
+  let prevType = null;
+
+  while (index < expression.length) {
+    const char = expression[index];
+    if (/[0-9.]/.test(char)) {
+      let numStr = "";
+      let dotCount = 0;
+      while (index < expression.length && /[0-9.]/.test(expression[index])) {
+        if (expression[index] === ".") dotCount += 1;
+        numStr += expression[index];
+        index += 1;
+      }
+      if (dotCount > 1 || numStr === ".") return null;
+      const value = Number.parseFloat(numStr);
+      if (!Number.isFinite(value)) return null;
+      tokens.push({ type: "number", value });
+      prevType = "number";
+      continue;
     }
-    return { value: result, error: null, empty: false };
-  } catch (error) {
-    return { value: null, error: "invalid", empty: false };
+
+    if (char === "(") {
+      tokens.push({ type: "paren", value: "(" });
+      prevType = "parenL";
+      index += 1;
+      continue;
+    }
+
+    if (char === ")") {
+      tokens.push({ type: "paren", value: ")" });
+      prevType = "parenR";
+      index += 1;
+      continue;
+    }
+
+    if (["+","-","*","/","%"].includes(char)) {
+      let op = char;
+      if (op === "+" || op === "-") {
+        if (prevType === null || prevType === "op" || prevType === "parenL") {
+          op = op === "+" ? "u+" : "u-";
+        }
+      }
+      if (op === "%") {
+        if (prevType !== "number" && prevType !== "parenR") return null;
+        op = "pct";
+      }
+      tokens.push({ type: "op", op });
+      prevType = op === "pct" ? "number" : "op";
+      index += 1;
+      continue;
+    }
+
+    return null;
   }
+
+  return tokens;
+}
+
+function toRpn(tokens) {
+  const output = [];
+  const stack = [];
+  let invalid = false;
+  const ops = {
+    "u+": { prec: 4, assoc: "right", arity: 1 },
+    "u-": { prec: 4, assoc: "right", arity: 1 },
+    pct: { prec: 4, assoc: "left", arity: 1 },
+    "*": { prec: 3, assoc: "left", arity: 2 },
+    "/": { prec: 3, assoc: "left", arity: 2 },
+    "+": { prec: 2, assoc: "left", arity: 2 },
+    "-": { prec: 2, assoc: "left", arity: 2 }
+  };
+
+  for (const token of tokens) {
+    if (token.type === "number") {
+      output.push(token);
+      continue;
+    }
+    if (token.type === "op") {
+      const current = ops[token.op];
+      if (!current) {
+        invalid = true;
+        break;
+      }
+      while (stack.length) {
+        const top = stack[stack.length - 1];
+        if (top.type !== "op") break;
+        const topOp = ops[top.op];
+        if (!topOp) break;
+        const shouldPop =
+          (current.assoc === "left" && current.prec <= topOp.prec) ||
+          (current.assoc === "right" && current.prec < topOp.prec);
+        if (!shouldPop) break;
+        output.push(stack.pop());
+      }
+      stack.push(token);
+      continue;
+    }
+    if (token.type === "paren" && token.value === "(") {
+      stack.push(token);
+      continue;
+    }
+    if (token.type === "paren" && token.value === ")") {
+      while (stack.length && stack[stack.length - 1].type !== "paren") {
+        output.push(stack.pop());
+      }
+      if (!stack.length) {
+        invalid = true;
+        break;
+      }
+      stack.pop();
+    }
+  }
+
+  if (invalid) return null;
+
+  while (stack.length) {
+    const token = stack.pop();
+    if (token.type === "paren") return null;
+    output.push(token);
+  }
+
+  return output;
+}
+
+function evalRpn(tokens) {
+  const stack = [];
+  tokens.forEach((token) => {
+    if (token.type === "number") {
+      stack.push(token.value);
+      return;
+    }
+    const op = token.op;
+    if (op === "u+" || op === "u-" || op === "pct") {
+      if (stack.length < 1) {
+        stack.length = 0;
+        return;
+      }
+      const value = stack.pop();
+      if (op === "u+") stack.push(value);
+      if (op === "u-") stack.push(-value);
+      if (op === "pct") stack.push(value / 100);
+      return;
+    }
+    if (stack.length < 2) {
+      stack.length = 0;
+      return;
+    }
+    const right = stack.pop();
+    const left = stack.pop();
+    if (op === "+") stack.push(left + right);
+    if (op === "-") stack.push(left - right);
+    if (op === "*") stack.push(left * right);
+    if (op === "/") stack.push(left / right);
+  });
+
+  return stack.length === 1 ? stack[0] : NaN;
 }
 
 function parseNumber(value) {

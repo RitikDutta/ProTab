@@ -513,11 +513,77 @@ body {
   color: var(--ink);
 }
 
+.calculator .calc-display {
+  background: var(--surface);
+  border: 3px solid var(--line-strong);
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 6px 6px 0 var(--line-strong);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.calc-expression {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  text-align: right;
+  word-break: break-all;
+  min-height: 28px;
+}
+
+.calc-result {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  text-align: right;
+  color: var(--muted);
+}
+
+.calc-keypad {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.calc-keypad button {
+  border: 2px solid var(--line-strong);
+  border-radius: 10px;
+  padding: 12px 0;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 700;
+  box-shadow: 4px 4px 0 var(--line-strong);
+}
+
+.calc-keypad button:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 var(--line-strong);
+}
+
+.calc-keypad button[data-value="+"],
+.calc-keypad button[data-value="-"],
+.calc-keypad button[data-value="*"],
+.calc-keypad button[data-value="/"] {
+  background: var(--accent-3);
+}
+
+.calc-keypad button[data-action="clear"],
+.calc-keypad button[data-action="back"] {
+  background: var(--accent-4);
+}
+
+.calc-equals {
+  grid-column: span 4;
+  background: var(--accent-2);
+  color: #ffffff;
+  border-width: 3px;
+}
+
 .links,
 .tasks,
 .notes,
 .focus,
-.topsites,
+.calculator,
 .settings {
   grid-column: span 4;
 }
@@ -952,7 +1018,7 @@ button:active {
 body.zen .links,
 body.zen .tasks,
 body.zen .notes,
-body.zen .topsites,
+body.zen .calculator,
 body.zen .settings {
   display: none;
 }
@@ -963,10 +1029,6 @@ body.zen .focus {
   grid-column: span 6;
 }
 
-body.hide-top-sites .topsites {
-  display: none;
-}
-
 @media (max-width: 1100px) {
   .hero,
   .search,
@@ -975,7 +1037,7 @@ body.hide-top-sites .topsites {
   .notes,
   .focus,
   .tools,
-  .topsites,
+  .calculator,
   .settings {
     grid-column: span 6;
   }
@@ -999,7 +1061,7 @@ body.hide-top-sites .topsites {
   .notes,
   .focus,
   .tools,
-  .topsites,
+  .calculator,
   .settings {
     grid-column: span 6;
   }
