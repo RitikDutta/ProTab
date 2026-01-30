@@ -127,10 +127,10 @@ NewTab OS is built with a privacy-first approach.
 
 ## 📸 Screenshots / Demo
 
-![Screenshot 1](1.jpg)
-![Screenshot 2](2.jpg)
-![Screenshot 3](3.jpg)
-![Screenshot 4](4.jpg)
+![Screenshot 1](media/1.jpg)
+![Screenshot 2](media/2.jpg)
+![Screenshot 3](media/3.jpg)
+![Screenshot 4](media/4.jpg)
 
 Suggested shots:
 - Full dashboard overview
