@@ -1,242 +1,230 @@
-# 🚀 Smart New Tab – Your Personal Productivity OS
+# ⚡ NewTab OS — Your Browser’s Personal Command Center
 
-> Turn every new tab into a powerful control panel for your work, focus, and career.
+Turn every new tab into a clean, fast, *useful* workspace — not a blank page.  
+**NewTab OS** replaces Chrome’s default New Tab with a modular dashboard built for real daily use: quick searches, shortcuts, tasks, notes, focus timer, calculators, and a dedicated **Salary Lab** for offer comparison + in-hand estimation.
 
-**Smart New Tab** is a Chrome extension that replaces the default new tab page with a fully functional productivity dashboard.
-It combines search, tasks, notes, tools, focus timer, and salary planning — all in one fast, private, and customizable interface.
-
-This is not just a new tab UI.
-This is a **daily workspace inside your browser**.
+> If your browser is where you work, your new tab should work *for you*.
 
 ---
 
-## ✨ Key Highlights
+## ✨ Why NewTab OS?
 
-* ⚡ Ultra-fast new tab experience
-* 🧩 Modular card-based layout
-* 🔐 100% local & private (no servers, no tracking)
-* 🧠 Designed for real-world productivity
-* 💼 Career-focused features (Salary Lab)
-* 🛠 Built for engineers, students & professionals
+Most “new tab” extensions are either:
+- pretty but useless, or
+- useful but cluttered.
+
+NewTab OS is designed to be:
+- **Instant** — opens like a native new tab should.
+- **Practical** — features you actually use daily.
+- **Personal** — configurable cards, themes, preferences.
+- **Private** — built to keep your data in your browser.
 
 ---
 
 ## 🧩 Features
 
-### 🔍 Multi Search Card
+### 🔎 Multi Search (One tab, many searches)
+Multiple search inputs with site-specific icons.
+Type your query and hit Enter — you’re instantly searching on that platform.
 
-Search directly across multiple platforms from one place.
-
-* YouTube
-* Google
-* ChatGPT
-* GitHub
-* Any custom site
-
-Just type → press Enter → go.
+Examples:
+- YouTube search → `music` → opens YouTube results
+- Google / StackOverflow / GitHub / Amazon / etc. (configurable)
 
 ---
 
-### 🔗 Quick Links
-
-Your most-used websites as icons.
-
-* Add/remove links
-* Visual shortcut grid
-* Faster than bookmarks
+### 🔗 Quick Links (Your shortcuts, your rules)
+A visual icon grid of your frequently visited sites.
+- Add / remove links anytime
+- Clean, fast access
 
 ---
 
-### ✅ Tasks (Synced Across Tabs)
-
-Built-in to-do list.
-
-* Add / delete / mark complete
-* Automatically syncs across open tabs
-* Persistent storage
+### ✅ Tasks (Synced across tabs)
+A lightweight todo list that stays consistent across every new tab you open.
+- Add tasks
+- Mark as done
+- Remove tasks
+- Stays synced across tabs automatically
 
 ---
 
 ### 📝 Notes (Scratchpad)
-
-A quick space for:
-
-* Ideas
-* Copy
-* Temporary notes
-
-Stays saved across new tabs and browser restarts.
+A persistent scratchpad for ideas, copy-paste snippets, quick planning, anything.
+Open a new tab — your notes are still there.
 
 ---
 
 ### ⏱ Focus Time (Pomodoro)
-
-Built-in focus timer to avoid distraction.
-
-* Work / break cycles
-* Minimal UI
-* Designed for quick usage
+Built-in focus timer to help you stay in flow without switching apps.
 
 ---
 
 ### 🧰 Quick Tools
-
-Everyday calculators inside your new tab:
-
-* Currency converter
-* Unit converter
-* Percentage calculator
-* Split bill calculator
-
-No need to Google these anymore.
+A set of fast everyday tools (designed for speed, not complexity):
+- Currency converter
+- Unit converter
+- Percent calculator
+- Split bill calculator
 
 ---
 
 ### 🧮 Calculator
-
-A lightweight keypad calculator:
-
-* Keyboard friendly
-* Instant results
-* Always available
+A clean keypad calculator right in your new tab.  
+Fast for quick math without reaching for another app.
 
 ---
 
-### 💼 Salary Lab (Unique Feature)
+### 💼 Salary Lab (Career-grade feature)
+This is the “power card” — built for anyone actively interviewing or negotiating.
 
-A powerful salary planning toolkit:
+Includes:
+- CTC → **in-hand salary estimate** (annual + monthly)
+- Add components like PF, taxes, HRA, etc.
+- Compare multiple offers side-by-side
+- Target in-hand tool: “I want ₹X/month in-hand → what CTC should I aim for?”
 
-* CTC → in-hand (annual & monthly)
-* Adjust PF, tax, HRA, deductions
-* Compare multiple job offers
-* Target in-hand → required CTC
-* Negotiation support
-
-This makes Smart New Tab especially useful for:
-
-* Job seekers
-* Professionals
-* Career planning
+> Most new-tab dashboards help you *browse*.  
+> Salary Lab helps you *make better career decisions*.
 
 ---
 
 ### ⚙ Preferences
-
 Personalize your workspace:
-
-* Name display
-* 12h / 24h clock
-* Theme selection
-* Card visibility
+- Show your name on the top bar
+- 12/24-hour clock format
+- Multiple theme color schemes
 
 ---
 
-## 🖥 Screenshots
+## 🧠 Philosophy
 
-(Add screenshots here)
+NewTab OS follows a simple product rule:
 
-* Multi Search
-* Tasks & Notes
-* Salary Lab
-* Focus Timer
-* Settings
+**A New Tab should be a launchpad.**  
+Not a dead-end.
 
----
-
-## 🔐 Privacy First
-
-Smart New Tab is built with privacy as a core principle:
-
-* No backend
-* No analytics
-* No ads
-* No user tracking
-* No external data sync
-
-All data is stored locally in your browser.
+Everything here is built around:
+- quick actions
+- low friction
+- daily usefulness
+- clean layout
 
 ---
 
-## 🧱 Tech Stack
+## 🔐 Privacy
 
-* HTML, CSS, JavaScript
-* Chrome Extension (Manifest V3)
-* Local storage for persistence
-* Modular card-based architecture
+NewTab OS is built with a privacy-first approach.
+
+- No ads
+- No tracking
+- No “account required”
+- Your tasks + notes + preferences remain in your browser (local storage)
+
+*(If you later add optional sync, it should stay opt-in.)*
 
 ---
 
-## 📦 Installation (Developer Mode)
+## 📸 Screenshots / Demo
 
-1. Clone the repository
-2. Open Chrome and go to chrome://extensions
-3. Enable Developer Mode
-4. Click “Load unpacked”
+>  screenshots or a short GIF here (highly recommended for pitching)
+
+Suggested shots:
+- Full dashboard overview
+- Multi Search card in action
+- Tasks + Notes persistence
+- Salary Lab offer comparison
+- Preferences + themes
+
+---
+
+## 🚀 Installation
+
+### Option A: Install from Chrome Web Store
+> (Add link once published)
+
+### Option B: Install manually (Developer mode)
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/<your-username>/<repo-name>.git
+
+2. Open Chrome → `chrome://extensions`
+3. Enable **Developer mode**
+4. Click **Load unpacked**
 5. Select the project folder
 
-Open a new tab and enjoy 🚀
+---
+
+## 🛠 Tech Stack
+
+> Update these to match your implementation
+
+* Chrome Extension (overrides New Tab)
+* Manifest V3
+* HTML / CSS / JavaScript (or React/Vite/Next — whichever you used)
+* Local persistence using `chrome.storage` / `localStorage` (mention your actual choice)
 
 ---
 
-## 🛣 Roadmap
+## 🗺 Roadmap
 
-Planned improvements:
+Planned upgrades (in priority order):
 
-* Drag & drop card layout
-* Hide / show cards
-* Export & import data
-* Keyboard shortcuts
-* Advanced salary regime selection
-* PWA support
-* Chrome Web Store release
+* [ ] Drag & drop card reordering
+* [ ] Toggle / hide cards (custom dashboard layout)
+* [ ] Custom search engine manager (add/edit/reorder)
+* [ ] Export / Import settings (backup & restore)
+* [ ] Offer saving + smarter salary comparisons
+* [ ] Keyboard-first mode (power user shortcuts)
+* [ ] Optional sync across devices (opt-in)
 
----
-
-## 🎯 Who Is This For?
-
-* Developers
-* Students
-* Job seekers
-* Professionals
-* Power users
-* Anyone who lives inside a browser
-
-If you open new tabs all day — this is for you.
+Have an idea? Open an issue 🔥
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome.
+Contributions are welcome:
 
-You can help by:
+* feature ideas
+* UI improvements
+* bug fixes
+* performance enhancements
 
-* Adding new tools
-* Improving UI
-* Fixing bugs
-* Suggesting features
+### Steps
 
-Open an issue or submit a pull request.
-
----
-
-## 📜 License
-
-MIT License
-Free to use, modify, and distribute.
+1. Fork this repo
+2. Create a branch: `feature/<name>`
+3. Commit changes
+4. Open a Pull Request
 
 ---
 
-## ⭐ Why This Exists
+## 🧾 License
 
-Most new tab extensions show:
+Choose a license:
 
-* weather
-* quotes
-* wallpapers
+* MIT (recommended for open-source)
+* Apache-2.0
+* GPL
 
-Smart New Tab focuses on:
+*(Add your license file and update this section.)*
 
-**work, thinking, and career**
+---
 
-It turns wasted new tabs into useful moments.
+## ⭐ Support
+
+If this saves you time daily:
+
+* Star the repo ⭐
+* Share it with a friend
+* Open feedback/issues — it helps improve fast
+
+---
+
+## 👤 Author
+
+Built by **Ritik Dutta**
+Portfolio: [https://www.ritikdutta.com](https://www.ritikdutta.com)
+
+If you want to collaborate, improve the product, or ship a public release — open an issue or reach out.
