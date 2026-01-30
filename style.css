@@ -520,6 +520,155 @@ body {
   color: var(--ink);
 }
 
+.salary {
+  grid-column: span 7;
+  grid-row: span 2;
+}
+
+.salary-hero {
+  background: var(--surface);
+  border: 3px solid var(--line-strong);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 6px 6px 0 var(--line-strong);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.salary-hero-label {
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.salary-hero-value {
+  font-family: var(--font-mono);
+  font-size: 32px;
+}
+
+.salary-hero-sub {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.salary-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.salary-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  align-items: end;
+}
+
+.range-field {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.range-field input[type="range"] {
+  flex: 1 1 auto;
+  padding: 0;
+  height: 32px;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.salary-why {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.salary-warnings {
+  display: grid;
+  gap: 6px;
+}
+
+.salary-warning {
+  background: var(--accent-3);
+  border: 2px solid var(--line-strong);
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.salary-blocks {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.salary-block {
+  background: var(--surface);
+  border: 2px solid var(--line-strong);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.salary-block-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.salary-metric {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.salary-metric span:last-child {
+  font-family: var(--font-mono);
+}
+
+.salary-accordion {
+  border: 2px solid var(--line-strong);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: var(--surface);
+}
+
+.salary-accordion summary {
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.salary-accordion[open] summary {
+  margin-bottom: 10px;
+}
+
+.salary-advanced {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.salary-note {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.salary-compare {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .calculator .calc-display {
   background: var(--surface);
   border: 3px solid var(--line-strong);
@@ -1043,6 +1192,7 @@ body.zen .focus {
   .tasks,
   .notes,
   .focus,
+  .salary,
   .tools,
   .calculator,
   .settings {
@@ -1067,6 +1217,7 @@ body.zen .focus {
   .tasks,
   .notes,
   .focus,
+  .salary,
   .tools,
   .calculator,
   .settings {

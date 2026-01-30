@@ -197,6 +197,229 @@
       <div class="search-hints">Unit categories include length, weight, volume, temp.</div>
     </section>
 
+    <section class="panel salary">
+      <div class="panel-title">Salary lab</div>
+      <div class="salary-hero">
+        <div class="salary-hero-main">
+          <div class="salary-hero-label">Monthly in-hand (estimated)</div>
+          <div class="salary-hero-value" id="salaryInhandMonthly">INR 0</div>
+        </div>
+        <div class="salary-hero-sub">Annual in-hand: <span id="salaryInhandAnnual">INR 0</span></div>
+      </div>
+
+      <div class="salary-actions">
+        <button type="button" id="salaryCalculate">Calculate</button>
+        <button type="button" class="ghost-btn" id="salaryCopy">Copy breakup</button>
+      </div>
+
+      <div class="salary-grid">
+        <label class="field">
+          <span>CTC (annual)</span>
+          <input id="salaryCtc" type="number" step="1000" />
+        </label>
+        <label class="field">
+          <span>Tax regime</span>
+          <select id="salaryRegime">
+            <option value="new">New</option>
+            <option value="old">Old</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Variable pay %</span>
+          <div class="range-field">
+            <input id="salaryVariable" type="range" min="0" max="50" step="1" />
+            <input id="salaryVariableInput" type="number" min="0" max="50" step="0.5" />
+          </div>
+        </label>
+        <label class="field">
+          <span>PF rule</span>
+          <select id="salaryPfRule">
+            <option value="capped">PF capped at 15000 wage</option>
+            <option value="full">PF on full basic</option>
+          </select>
+        </label>
+        <label class="toggle">
+          <input id="salaryEmployerPf" type="checkbox" />
+          <span>Employer PF in CTC</span>
+        </label>
+        <label class="toggle">
+          <input id="salaryGratuity" type="checkbox" />
+          <span>Gratuity in CTC</span>
+        </label>
+        <label class="toggle">
+          <input id="salaryVariableGuaranteed" type="checkbox" />
+          <span>Variable guaranteed</span>
+        </label>
+        <label class="toggle">
+          <input id="salaryVariableMonthly" type="checkbox" />
+          <span>Variable paid monthly</span>
+        </label>
+        <label class="field">
+          <span>Professional tax (monthly)</span>
+          <input id="salaryPt" type="number" step="50" />
+        </label>
+        <label class="field">
+          <span>Other deductions (monthly)</span>
+          <input id="salaryOtherDeduct" type="number" step="50" />
+        </label>
+      </div>
+
+      <div class="salary-why" id="salaryWhy"></div>
+      <div class="salary-warnings" id="salaryWarnings"></div>
+
+      <div class="salary-blocks">
+        <div class="salary-block">
+          <div class="salary-block-title">Fixed pay</div>
+          <div class="salary-metric">
+            <span>Fixed annual</span>
+            <span id="salaryFixedAnnual">—</span>
+          </div>
+          <div class="salary-metric">
+            <span>Fixed monthly (gross)</span>
+            <span id="salaryFixedMonthly">—</span>
+          </div>
+        </div>
+        <div class="salary-block">
+          <div class="salary-block-title">Deductions (monthly)</div>
+          <div class="salary-metric">
+            <span>Employee PF</span>
+            <span id="salaryDeductPf">—</span>
+          </div>
+          <div class="salary-metric">
+            <span>Professional tax</span>
+            <span id="salaryDeductPt">—</span>
+          </div>
+          <div class="salary-metric">
+            <span>TDS (tax)</span>
+            <span id="salaryDeductTds">—</span>
+          </div>
+          <div class="salary-metric">
+            <span>Other</span>
+            <span id="salaryDeductOther">—</span>
+          </div>
+        </div>
+        <div class="salary-block">
+          <div class="salary-block-title">In-hand salary</div>
+          <div class="salary-metric">
+            <span>Monthly in-hand</span>
+            <span id="salaryInhandMonthlyBlock">—</span>
+          </div>
+          <div class="salary-metric">
+            <span>Annual in-hand</span>
+            <span id="salaryInhandAnnualBlock">—</span>
+          </div>
+        </div>
+        <div class="salary-block">
+          <div class="salary-block-title">CTC breakdown</div>
+          <div class="salary-metric">
+            <span>Fixed cash</span>
+            <span id="salaryCtcFixed">—</span>
+          </div>
+          <div class="salary-metric">
+            <span>Variable pay</span>
+            <span id="salaryCtcVariable">—</span>
+          </div>
+          <div class="salary-metric">
+            <span id="salaryEmployerPfLabel">Employer PF</span>
+            <span id="salaryCtcEmployerPf">—</span>
+          </div>
+          <div class="salary-metric">
+            <span id="salaryGratuityLabel">Gratuity</span>
+            <span id="salaryCtcGratuity">—</span>
+          </div>
+          <div class="salary-metric">
+            <span>Benefits</span>
+            <span id="salaryCtcBenefits">—</span>
+          </div>
+          <div class="salary-metric">
+            <span>One-time</span>
+            <span id="salaryCtcOneTime">—</span>
+          </div>
+        </div>
+      </div>
+
+      <details class="salary-accordion">
+        <summary>Advanced settings</summary>
+        <div class="salary-advanced">
+          <div class="salary-grid">
+            <label class="field">
+              <span>Basic % of fixed</span>
+              <input id="salaryBasicPct" type="number" min="10" max="80" step="1" />
+            </label>
+            <label class="field">
+              <span>HRA % of basic</span>
+              <input id="salaryHraPct" type="number" min="10" max="80" step="1" />
+            </label>
+            <label class="field">
+              <span>Standard deduction (annual)</span>
+              <input id="salaryStandardDeduction" type="number" step="1000" />
+            </label>
+            <label class="field">
+              <span>Rent (monthly, old regime)</span>
+              <input id="salaryRent" type="number" step="500" />
+            </label>
+            <label class="toggle">
+              <input id="salaryMetro" type="checkbox" />
+              <span>Metro city (HRA exemption)</span>
+            </label>
+            <label class="field">
+              <span>PF rate %</span>
+              <input id="salaryPfRate" type="number" min="0" max="20" step="0.5" />
+            </label>
+            <label class="field">
+              <span>PF cap (monthly)</span>
+              <input id="salaryPfCap" type="number" step="1000" />
+            </label>
+            <label class="field">
+              <span>Gratuity rate %</span>
+              <input id="salaryGratuityRate" type="number" min="0" max="10" step="0.01" />
+            </label>
+            <label class="field">
+              <span>Benefits (annual)</span>
+              <input id="salaryBenefits" type="number" step="1000" />
+            </label>
+            <label class="field">
+              <span>One-time (annual)</span>
+              <input id="salaryOneTime" type="number" step="1000" />
+            </label>
+            <label class="field">
+              <span>Other tax deductions (annual)</span>
+              <input id="salaryOtherTaxDeduct" type="number" step="1000" />
+            </label>
+          </div>
+          <div class="salary-note">Tax slabs and cess are configurable in script.js. Rebates and surcharge are not applied.</div>
+        </div>
+      </details>
+
+      <details class="salary-accordion">
+        <summary>Negotiation helpers</summary>
+        <div class="salary-advanced">
+          <div class="salary-grid">
+            <label class="field">
+              <span>Target in-hand (monthly)</span>
+              <input id="salaryTargetInhand" type="number" step="1000" />
+            </label>
+            <button type="button" id="salaryTargetCalc">Estimate CTC</button>
+            <div class="tool-result" id="salaryTargetCtc">—</div>
+          </div>
+          <div class="salary-compare">
+            <div class="salary-grid">
+              <label class="field">
+                <span>Offer A CTC (annual)</span>
+                <input id="salaryCompareA" type="number" step="1000" />
+              </label>
+              <label class="field">
+                <span>Offer B CTC (annual)</span>
+                <input id="salaryCompareB" type="number" step="1000" />
+              </label>
+            </div>
+            <button type="button" id="salaryCompareCalc">Compare offers</button>
+            <div class="tool-result" id="salaryCompareResult">—</div>
+          </div>
+        </div>
+      </details>
+    </section>
+
     <section class="panel calculator">
       <div class="panel-title">Calculator</div>
       <div class="calc-display">

@@ -103,6 +103,50 @@ const CURRENCY_FALLBACK = {
   ILS: "Israeli Shekel"
 };
 
+const SALARY_DEFAULTS = {
+  ctc: 1200000,
+  regime: "new",
+  variablePct: 10,
+  basicPct: 40,
+  hraPct: 40,
+  pfRatePct: 12,
+  pfCapMonthly: 15000,
+  pfRule: "capped",
+  employerPfInCtc: true,
+  gratuityInCtc: true,
+  gratuityRatePct: 4.81,
+  standardDeduction: 50000,
+  rentMonthly: 0,
+  metro: false,
+  variableGuaranteed: true,
+  variableMonthly: false,
+  professionalTaxMonthly: 200,
+  otherDeductMonthly: 0,
+  benefitsAnnual: 0,
+  oneTimeAnnual: 0,
+  otherTaxDeductAnnual: 0
+};
+
+const SALARY_TAX_CONFIG = {
+  cessRate: 0.04,
+  slabs: {
+    old: [
+      { upto: 250000, rate: 0 },
+      { upto: 500000, rate: 0.05 },
+      { upto: 1000000, rate: 0.2 },
+      { upto: null, rate: 0.3 }
+    ],
+    new: [
+      { upto: 300000, rate: 0 },
+      { upto: 600000, rate: 0.05 },
+      { upto: 900000, rate: 0.1 },
+      { upto: 1200000, rate: 0.15 },
+      { upto: 1500000, rate: 0.2 },
+      { upto: null, rate: 0.3 }
+    ]
+  }
+};
+
 const elements = {
   greeting: document.querySelector("#greeting"),
   nameDisplay: document.querySelector("#nameDisplay"),
@@ -166,7 +210,58 @@ const elements = {
   splitTip: document.querySelector("#splitTip"),
   splitTax: document.querySelector("#splitTax"),
   splitCalc: document.querySelector("#splitCalc"),
-  splitResult: document.querySelector("#splitResult")
+  splitResult: document.querySelector("#splitResult"),
+  salaryCtc: document.querySelector("#salaryCtc"),
+  salaryRegime: document.querySelector("#salaryRegime"),
+  salaryVariable: document.querySelector("#salaryVariable"),
+  salaryVariableInput: document.querySelector("#salaryVariableInput"),
+  salaryPfRule: document.querySelector("#salaryPfRule"),
+  salaryEmployerPf: document.querySelector("#salaryEmployerPf"),
+  salaryGratuity: document.querySelector("#salaryGratuity"),
+  salaryVariableGuaranteed: document.querySelector("#salaryVariableGuaranteed"),
+  salaryVariableMonthly: document.querySelector("#salaryVariableMonthly"),
+  salaryPt: document.querySelector("#salaryPt"),
+  salaryOtherDeduct: document.querySelector("#salaryOtherDeduct"),
+  salaryInhandMonthly: document.querySelector("#salaryInhandMonthly"),
+  salaryInhandAnnual: document.querySelector("#salaryInhandAnnual"),
+  salaryInhandMonthlyBlock: document.querySelector("#salaryInhandMonthlyBlock"),
+  salaryInhandAnnualBlock: document.querySelector("#salaryInhandAnnualBlock"),
+  salaryFixedAnnual: document.querySelector("#salaryFixedAnnual"),
+  salaryFixedMonthly: document.querySelector("#salaryFixedMonthly"),
+  salaryDeductPf: document.querySelector("#salaryDeductPf"),
+  salaryDeductPt: document.querySelector("#salaryDeductPt"),
+  salaryDeductTds: document.querySelector("#salaryDeductTds"),
+  salaryDeductOther: document.querySelector("#salaryDeductOther"),
+  salaryCtcFixed: document.querySelector("#salaryCtcFixed"),
+  salaryCtcVariable: document.querySelector("#salaryCtcVariable"),
+  salaryCtcEmployerPf: document.querySelector("#salaryCtcEmployerPf"),
+  salaryCtcGratuity: document.querySelector("#salaryCtcGratuity"),
+  salaryCtcBenefits: document.querySelector("#salaryCtcBenefits"),
+  salaryCtcOneTime: document.querySelector("#salaryCtcOneTime"),
+  salaryEmployerPfLabel: document.querySelector("#salaryEmployerPfLabel"),
+  salaryGratuityLabel: document.querySelector("#salaryGratuityLabel"),
+  salaryBasicPct: document.querySelector("#salaryBasicPct"),
+  salaryHraPct: document.querySelector("#salaryHraPct"),
+  salaryStandardDeduction: document.querySelector("#salaryStandardDeduction"),
+  salaryRent: document.querySelector("#salaryRent"),
+  salaryMetro: document.querySelector("#salaryMetro"),
+  salaryPfRate: document.querySelector("#salaryPfRate"),
+  salaryPfCap: document.querySelector("#salaryPfCap"),
+  salaryGratuityRate: document.querySelector("#salaryGratuityRate"),
+  salaryBenefits: document.querySelector("#salaryBenefits"),
+  salaryOneTime: document.querySelector("#salaryOneTime"),
+  salaryOtherTaxDeduct: document.querySelector("#salaryOtherTaxDeduct"),
+  salaryCalculate: document.querySelector("#salaryCalculate"),
+  salaryCopy: document.querySelector("#salaryCopy"),
+  salaryWhy: document.querySelector("#salaryWhy"),
+  salaryWarnings: document.querySelector("#salaryWarnings"),
+  salaryTargetInhand: document.querySelector("#salaryTargetInhand"),
+  salaryTargetCalc: document.querySelector("#salaryTargetCalc"),
+  salaryTargetCtc: document.querySelector("#salaryTargetCtc"),
+  salaryCompareA: document.querySelector("#salaryCompareA"),
+  salaryCompareB: document.querySelector("#salaryCompareB"),
+  salaryCompareCalc: document.querySelector("#salaryCompareCalc"),
+  salaryCompareResult: document.querySelector("#salaryCompareResult")
 };
 
 const state = loadState();
@@ -516,6 +611,7 @@ function initTools() {
   updatePercentResult();
   updateChangeResult();
   updateSplitResult();
+  initSalaryTool();
 }
 
 function applyState() {
@@ -933,6 +1029,537 @@ function updateSplitResult() {
   )} unit | Total: ${formatFixedNumber(grandTotal, 2)} unit`;
 }
 
+function initSalaryTool() {
+  if (!elements.salaryCtc) return;
+  applySalaryDefaults();
+  bindSalaryEvents();
+  updateSalaryResults();
+}
+
+function applySalaryDefaults() {
+  if (elements.salaryCtc) elements.salaryCtc.value = SALARY_DEFAULTS.ctc;
+  if (elements.salaryRegime) elements.salaryRegime.value = SALARY_DEFAULTS.regime;
+  syncSalaryVariableInputs(SALARY_DEFAULTS.variablePct);
+  if (elements.salaryPfRule) elements.salaryPfRule.value = SALARY_DEFAULTS.pfRule;
+  if (elements.salaryEmployerPf) elements.salaryEmployerPf.checked = SALARY_DEFAULTS.employerPfInCtc;
+  if (elements.salaryGratuity) elements.salaryGratuity.checked = SALARY_DEFAULTS.gratuityInCtc;
+  if (elements.salaryVariableGuaranteed) elements.salaryVariableGuaranteed.checked = SALARY_DEFAULTS.variableGuaranteed;
+  if (elements.salaryVariableMonthly) elements.salaryVariableMonthly.checked = SALARY_DEFAULTS.variableMonthly;
+  if (elements.salaryPt) elements.salaryPt.value = SALARY_DEFAULTS.professionalTaxMonthly;
+  if (elements.salaryOtherDeduct) elements.salaryOtherDeduct.value = SALARY_DEFAULTS.otherDeductMonthly;
+  if (elements.salaryBasicPct) elements.salaryBasicPct.value = SALARY_DEFAULTS.basicPct;
+  if (elements.salaryHraPct) elements.salaryHraPct.value = SALARY_DEFAULTS.hraPct;
+  if (elements.salaryStandardDeduction) {
+    elements.salaryStandardDeduction.value = SALARY_DEFAULTS.standardDeduction;
+  }
+  if (elements.salaryRent) elements.salaryRent.value = SALARY_DEFAULTS.rentMonthly;
+  if (elements.salaryMetro) elements.salaryMetro.checked = SALARY_DEFAULTS.metro;
+  if (elements.salaryPfRate) elements.salaryPfRate.value = SALARY_DEFAULTS.pfRatePct;
+  if (elements.salaryPfCap) elements.salaryPfCap.value = SALARY_DEFAULTS.pfCapMonthly;
+  if (elements.salaryGratuityRate) elements.salaryGratuityRate.value = SALARY_DEFAULTS.gratuityRatePct;
+  if (elements.salaryBenefits) elements.salaryBenefits.value = SALARY_DEFAULTS.benefitsAnnual;
+  if (elements.salaryOneTime) elements.salaryOneTime.value = SALARY_DEFAULTS.oneTimeAnnual;
+  if (elements.salaryOtherTaxDeduct) {
+    elements.salaryOtherTaxDeduct.value = SALARY_DEFAULTS.otherTaxDeductAnnual;
+  }
+}
+
+function bindSalaryEvents() {
+  const updateInputs = [
+    elements.salaryCtc,
+    elements.salaryRegime,
+    elements.salaryPfRule,
+    elements.salaryEmployerPf,
+    elements.salaryGratuity,
+    elements.salaryVariableGuaranteed,
+    elements.salaryVariableMonthly,
+    elements.salaryPt,
+    elements.salaryOtherDeduct,
+    elements.salaryBasicPct,
+    elements.salaryHraPct,
+    elements.salaryStandardDeduction,
+    elements.salaryRent,
+    elements.salaryMetro,
+    elements.salaryPfRate,
+    elements.salaryPfCap,
+    elements.salaryGratuityRate,
+    elements.salaryBenefits,
+    elements.salaryOneTime,
+    elements.salaryOtherTaxDeduct
+  ];
+
+  updateInputs.forEach((input) => {
+    if (!input) return;
+    input.addEventListener("input", updateSalaryResults);
+    input.addEventListener("change", updateSalaryResults);
+  });
+
+  if (elements.salaryVariable) {
+    elements.salaryVariable.addEventListener("input", () => {
+      syncSalaryVariableInputs(elements.salaryVariable.value);
+      updateSalaryResults();
+    });
+  }
+
+  if (elements.salaryVariableInput) {
+    elements.salaryVariableInput.addEventListener("input", () => {
+      syncSalaryVariableInputs(elements.salaryVariableInput.value);
+      updateSalaryResults();
+    });
+  }
+
+  if (elements.salaryCalculate) {
+    elements.salaryCalculate.addEventListener("click", updateSalaryResults);
+  }
+
+  if (elements.salaryCopy) {
+    elements.salaryCopy.addEventListener("click", copySalaryBreakup);
+  }
+
+  if (elements.salaryTargetCalc) {
+    elements.salaryTargetCalc.addEventListener("click", updateSalaryTarget);
+  }
+
+  if (elements.salaryCompareCalc) {
+    elements.salaryCompareCalc.addEventListener("click", updateSalaryCompare);
+  }
+
+  if (elements.salaryTargetInhand) {
+    elements.salaryTargetInhand.addEventListener("input", updateSalaryTarget);
+  }
+
+  if (elements.salaryCompareA) {
+    elements.salaryCompareA.addEventListener("input", updateSalaryCompare);
+  }
+
+  if (elements.salaryCompareB) {
+    elements.salaryCompareB.addEventListener("input", updateSalaryCompare);
+  }
+}
+
+function syncSalaryVariableInputs(value) {
+  const cleaned = clampNumber(numberOr(value, SALARY_DEFAULTS.variablePct), 0, 50);
+  if (elements.salaryVariable) elements.salaryVariable.value = cleaned;
+  if (elements.salaryVariableInput) elements.salaryVariableInput.value = cleaned;
+}
+
+function updateSalaryResults() {
+  if (!elements.salaryCtc) return;
+  const inputs = readSalaryInputs();
+  const result = calculateSalary(inputs);
+  renderSalaryResults(inputs, result);
+  updateSalaryCompare();
+  updateSalaryTarget();
+}
+
+function readSalaryInputs() {
+  const ctc = Math.max(0, numberOr(elements.salaryCtc?.value, SALARY_DEFAULTS.ctc));
+  const regime = elements.salaryRegime?.value === "old" ? "old" : "new";
+  const variablePct = clampNumber(
+    numberOr(elements.salaryVariableInput?.value, SALARY_DEFAULTS.variablePct),
+    0,
+    50
+  );
+  const basicPct = clampNumber(
+    numberOr(elements.salaryBasicPct?.value, SALARY_DEFAULTS.basicPct),
+    0,
+    100
+  );
+  const hraPct = clampNumber(numberOr(elements.salaryHraPct?.value, SALARY_DEFAULTS.hraPct), 0, 100);
+  const pfRatePct = clampNumber(
+    numberOr(elements.salaryPfRate?.value, SALARY_DEFAULTS.pfRatePct),
+    0,
+    20
+  );
+  const pfCapMonthly = Math.max(
+    0,
+    numberOr(elements.salaryPfCap?.value, SALARY_DEFAULTS.pfCapMonthly)
+  );
+  const gratuityRatePct = clampNumber(
+    numberOr(elements.salaryGratuityRate?.value, SALARY_DEFAULTS.gratuityRatePct),
+    0,
+    10
+  );
+  const pfRule = elements.salaryPfRule?.value === "full" ? "full" : "capped";
+  const employerPfInCtc = Boolean(elements.salaryEmployerPf?.checked);
+  const gratuityInCtc = Boolean(elements.salaryGratuity?.checked);
+  const variableGuaranteed = Boolean(elements.salaryVariableGuaranteed?.checked);
+  const variableMonthly = Boolean(elements.salaryVariableMonthly?.checked);
+  const standardDeduction = Math.max(
+    0,
+    numberOr(elements.salaryStandardDeduction?.value, SALARY_DEFAULTS.standardDeduction)
+  );
+  const rentMonthly = Math.max(
+    0,
+    numberOr(elements.salaryRent?.value, SALARY_DEFAULTS.rentMonthly)
+  );
+  const metro = Boolean(elements.salaryMetro?.checked);
+  const professionalTaxMonthly = Math.max(
+    0,
+    numberOr(elements.salaryPt?.value, SALARY_DEFAULTS.professionalTaxMonthly)
+  );
+  const otherDeductMonthly = Math.max(
+    0,
+    numberOr(elements.salaryOtherDeduct?.value, SALARY_DEFAULTS.otherDeductMonthly)
+  );
+  const benefitsAnnual = Math.max(
+    0,
+    numberOr(elements.salaryBenefits?.value, SALARY_DEFAULTS.benefitsAnnual)
+  );
+  const oneTimeAnnual = Math.max(
+    0,
+    numberOr(elements.salaryOneTime?.value, SALARY_DEFAULTS.oneTimeAnnual)
+  );
+  const otherTaxDeductAnnual = Math.max(
+    0,
+    numberOr(elements.salaryOtherTaxDeduct?.value, SALARY_DEFAULTS.otherTaxDeductAnnual)
+  );
+
+  return {
+    ctc,
+    regime,
+    variablePct,
+    basicPct,
+    hraPct,
+    pfRatePct,
+    pfCapMonthly,
+    pfRule,
+    employerPfInCtc,
+    gratuityInCtc,
+    gratuityRatePct,
+    standardDeduction,
+    rentMonthly,
+    metro,
+    variableGuaranteed,
+    variableMonthly,
+    professionalTaxMonthly,
+    otherDeductMonthly,
+    benefitsAnnual,
+    oneTimeAnnual,
+    otherTaxDeductAnnual
+  };
+}
+
+function calculateSalary(inputs) {
+  const variableRate = inputs.variablePct / 100;
+  const basicRate = inputs.basicPct / 100;
+  const hraRate = inputs.hraPct / 100;
+  const pfRate = inputs.pfRatePct / 100;
+  const gratuityRate = inputs.gratuityRatePct / 100;
+
+  const fixedAnnual = Math.max(0, inputs.ctc * (1 - variableRate));
+  const variableAnnual = Math.max(0, inputs.ctc * variableRate);
+  const basicAnnual = Math.max(0, fixedAnnual * basicRate);
+  const hraAnnual = Math.max(0, basicAnnual * hraRate);
+  const specialAnnual = Math.max(0, fixedAnnual - basicAnnual - hraAnnual);
+
+  const pfWageMonthly =
+    inputs.pfRule === "full" ? basicAnnual / 12 : Math.min(basicAnnual / 12, inputs.pfCapMonthly);
+  const epfEmployeeAnnual = Math.max(0, pfWageMonthly * pfRate * 12);
+  const epfEmployerAnnual = epfEmployeeAnnual;
+  const gratuityAnnual = Math.max(0, basicAnnual * gratuityRate);
+
+  const employerPfCtc = inputs.employerPfInCtc ? epfEmployerAnnual : 0;
+  const gratuityCtc = inputs.gratuityInCtc ? gratuityAnnual : 0;
+  const cashFixedAnnualRaw =
+    fixedAnnual - employerPfCtc - gratuityCtc - inputs.benefitsAnnual - inputs.oneTimeAnnual;
+  const cashFixedAnnual = Math.max(0, cashFixedAnnualRaw);
+  const cashFixedMonthly = cashFixedAnnual / 12;
+
+  const variablePaidAnnual = inputs.variableGuaranteed ? variableAnnual : 0;
+  const variablePaidMonthly = inputs.variableMonthly ? variablePaidAnnual / 12 : 0;
+  const grossMonthly = Math.max(0, cashFixedMonthly + variablePaidMonthly);
+  const grossAnnualCash = Math.max(0, cashFixedAnnual + variablePaidAnnual);
+
+  const hraExemptAnnual =
+    inputs.regime === "old"
+      ? calculateHraExemption(hraAnnual, basicAnnual, inputs.rentMonthly * 12, inputs.metro)
+      : 0;
+  const additionalDeductions = inputs.regime === "old" ? inputs.otherTaxDeductAnnual : 0;
+  const taxableIncome = Math.max(
+    0,
+    grossAnnualCash - inputs.standardDeduction - hraExemptAnnual - additionalDeductions
+  );
+  const slabTax = computeSlabTax(taxableIncome, inputs.regime);
+  const taxTotal = slabTax * (1 + SALARY_TAX_CONFIG.cessRate);
+  const tdsMonthly = taxTotal / 12;
+
+  const epfEmployeeMonthly = epfEmployeeAnnual / 12;
+  const inhandMonthly =
+    grossMonthly - epfEmployeeMonthly - inputs.professionalTaxMonthly - tdsMonthly - inputs.otherDeductMonthly;
+  const inhandAnnual = inhandMonthly * 12;
+
+  return {
+    fixedAnnual,
+    cashFixedAnnual,
+    cashFixedMonthly,
+    variableAnnual,
+    variablePaidAnnual,
+    basicAnnual,
+    hraAnnual,
+    specialAnnual,
+    epfEmployeeAnnual,
+    epfEmployerAnnual,
+    gratuityAnnual,
+    employerPfCtc,
+    gratuityCtc,
+    benefitsAnnual: inputs.benefitsAnnual,
+    oneTimeAnnual: inputs.oneTimeAnnual,
+    grossMonthly,
+    taxableIncome,
+    hraExemptAnnual,
+    taxTotal,
+    tdsMonthly,
+    inhandMonthly,
+    inhandAnnual,
+    cashFixedAnnualRaw
+  };
+}
+
+function calculateHraExemption(hraAnnual, basicAnnual, rentAnnual, metro) {
+  const rentOverTen = rentAnnual - 0.1 * basicAnnual;
+  const metroLimit = (metro ? 0.5 : 0.4) * basicAnnual;
+  return Math.max(0, Math.min(hraAnnual, rentOverTen, metroLimit));
+}
+
+function computeSlabTax(income, regime) {
+  const slabs = SALARY_TAX_CONFIG.slabs[regime] || SALARY_TAX_CONFIG.slabs.new;
+  let tax = 0;
+  let lastLimit = 0;
+  for (const slab of slabs) {
+    if (slab.upto === null) {
+      tax += Math.max(0, income - lastLimit) * slab.rate;
+      break;
+    }
+    const slabAmount = Math.max(0, Math.min(income, slab.upto) - lastLimit);
+    tax += slabAmount * slab.rate;
+    lastLimit = slab.upto;
+  }
+  return tax;
+}
+
+function renderSalaryResults(inputs, result) {
+  if (elements.salaryInhandMonthly) {
+    elements.salaryInhandMonthly.textContent = formatInr(result.inhandMonthly);
+  }
+  if (elements.salaryInhandAnnual) {
+    elements.salaryInhandAnnual.textContent = formatInr(result.inhandAnnual);
+  }
+  if (elements.salaryInhandMonthlyBlock) {
+    elements.salaryInhandMonthlyBlock.textContent = formatInr(result.inhandMonthly);
+  }
+  if (elements.salaryInhandAnnualBlock) {
+    elements.salaryInhandAnnualBlock.textContent = formatInr(result.inhandAnnual);
+  }
+  if (elements.salaryFixedAnnual) {
+    elements.salaryFixedAnnual.textContent = formatInr(result.fixedAnnual);
+  }
+  if (elements.salaryFixedMonthly) {
+    elements.salaryFixedMonthly.textContent = formatInr(result.cashFixedMonthly);
+  }
+  if (elements.salaryDeductPf) {
+    elements.salaryDeductPf.textContent = formatInr(result.epfEmployeeAnnual / 12);
+  }
+  if (elements.salaryDeductPt) {
+    elements.salaryDeductPt.textContent = formatInr(inputs.professionalTaxMonthly);
+  }
+  if (elements.salaryDeductTds) {
+    elements.salaryDeductTds.textContent = formatInr(result.tdsMonthly);
+  }
+  if (elements.salaryDeductOther) {
+    elements.salaryDeductOther.textContent = formatInr(inputs.otherDeductMonthly);
+  }
+  if (elements.salaryCtcFixed) {
+    elements.salaryCtcFixed.textContent = formatInr(result.cashFixedAnnual);
+  }
+  if (elements.salaryCtcVariable) {
+    elements.salaryCtcVariable.textContent = formatInr(result.variableAnnual);
+  }
+  if (elements.salaryCtcEmployerPf) {
+    elements.salaryCtcEmployerPf.textContent = formatInr(result.epfEmployerAnnual);
+  }
+  if (elements.salaryCtcGratuity) {
+    elements.salaryCtcGratuity.textContent = formatInr(result.gratuityAnnual);
+  }
+  if (elements.salaryCtcBenefits) {
+    elements.salaryCtcBenefits.textContent = formatInr(result.benefitsAnnual);
+  }
+  if (elements.salaryCtcOneTime) {
+    elements.salaryCtcOneTime.textContent = formatInr(result.oneTimeAnnual);
+  }
+
+  if (elements.salaryEmployerPfLabel) {
+    elements.salaryEmployerPfLabel.textContent = inputs.employerPfInCtc
+      ? "Employer PF"
+      : "Employer PF (outside CTC)";
+  }
+  if (elements.salaryGratuityLabel) {
+    elements.salaryGratuityLabel.textContent = inputs.gratuityInCtc
+      ? "Gratuity"
+      : "Gratuity (outside CTC)";
+  }
+
+  const why = buildSalaryWhy(inputs);
+  if (elements.salaryWhy) {
+    elements.salaryWhy.textContent = why;
+  }
+
+  renderSalaryWarnings(inputs, result);
+}
+
+function buildSalaryWhy(inputs) {
+  const reasons = [];
+  if (inputs.employerPfInCtc) {
+    reasons.push("Employer PF is part of CTC.");
+  }
+  if (inputs.gratuityInCtc) {
+    reasons.push("Gratuity is inside CTC.");
+  }
+  if (!inputs.variableMonthly) {
+    reasons.push("Variable pay is not included in monthly cash.");
+  }
+  if (!inputs.variableGuaranteed) {
+    reasons.push("Variable pay is treated as zero for in-hand and tax.");
+  }
+  if (inputs.regime === "new") {
+    reasons.push("HRA exemption is ignored in the new regime.");
+  }
+  return reasons.length
+    ? `Why this differs from CTC: ${reasons.join(" ")}`
+    : "Why this differs from CTC: taxes and statutory deductions reduce monthly cash.";
+}
+
+function renderSalaryWarnings(inputs, result) {
+  if (!elements.salaryWarnings) return;
+  elements.salaryWarnings.innerHTML = "";
+  const warnings = [];
+
+  if (inputs.variablePct >= 30) {
+    warnings.push("Variable pay is high; monthly in-hand can fluctuate.");
+  }
+  if (inputs.basicPct > 60) {
+    warnings.push("Basic percentage is unusually high; check your breakup.");
+  }
+  if (inputs.hraPct > 60) {
+    warnings.push("HRA percentage is high; confirm with your HR team.");
+  }
+  if (result.basicAnnual + result.hraAnnual > result.fixedAnnual) {
+    warnings.push("Basic + HRA exceeds fixed pay; special allowance was set to zero.");
+  }
+  if (result.cashFixedAnnualRaw < 0) {
+    warnings.push("Fixed cash turned negative; reduce benefits or employer components.");
+  }
+  if (inputs.regime === "old" && inputs.rentMonthly <= 0) {
+    warnings.push("Old regime selected: enter rent for HRA exemption if applicable.");
+  }
+  if (inputs.regime === "new" && inputs.otherTaxDeductAnnual > 0) {
+    warnings.push("Other tax deductions are ignored in the new regime.");
+  }
+
+  warnings.forEach((message) => {
+    const item = document.createElement("div");
+    item.className = "salary-warning";
+    item.textContent = message;
+    elements.salaryWarnings.appendChild(item);
+  });
+}
+
+async function copySalaryBreakup() {
+  if (!elements.salaryCopy) return;
+  const inputs = readSalaryInputs();
+  const result = calculateSalary(inputs);
+  const text = buildSalaryCopyText(inputs, result);
+  const original = elements.salaryCopy.textContent;
+
+  try {
+    await navigator.clipboard.writeText(text);
+    elements.salaryCopy.textContent = "Copied";
+  } catch (error) {
+    fallbackCopyText(text);
+    elements.salaryCopy.textContent = "Copied";
+  }
+
+  setTimeout(() => {
+    elements.salaryCopy.textContent = original;
+  }, 1400);
+}
+
+function fallbackCopyText(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  document.body.removeChild(textarea);
+}
+
+function buildSalaryCopyText(inputs, result) {
+  const lines = [
+    `CTC (annual): ${formatInr(inputs.ctc)}`,
+    `Fixed annual: ${formatInr(result.fixedAnnual)}`,
+    `Fixed monthly gross: ${formatInr(result.cashFixedMonthly)}`,
+    `Variable pay: ${formatInr(result.variableAnnual)}${inputs.variableGuaranteed ? "" : " (not guaranteed)"}`,
+    `Employee PF (monthly): ${formatInr(result.epfEmployeeAnnual / 12)}`,
+    `Professional tax (monthly): ${formatInr(inputs.professionalTaxMonthly)}`,
+    `TDS (monthly): ${formatInr(result.tdsMonthly)}`,
+    `Other deductions (monthly): ${formatInr(inputs.otherDeductMonthly)}`,
+    `In-hand monthly: ${formatInr(result.inhandMonthly)}`,
+    `In-hand annual: ${formatInr(result.inhandAnnual)}`
+  ];
+  return lines.join("\n");
+}
+
+function updateSalaryTarget() {
+  if (!elements.salaryTargetInhand || !elements.salaryTargetCtc) return;
+  const target = numberOr(elements.salaryTargetInhand.value, null);
+  if (target === null || target <= 0) {
+    elements.salaryTargetCtc.textContent = "—";
+    return;
+  }
+  const inputs = readSalaryInputs();
+  const estimate = estimateCtcForTarget(target, inputs);
+  elements.salaryTargetCtc.textContent = estimate ? `Est. CTC: ${formatInr(estimate)}` : "—";
+}
+
+function estimateCtcForTarget(targetMonthly, inputs) {
+  let low = 0;
+  let high = Math.max(targetMonthly * 12 * 3, inputs.ctc || 0, 100000);
+  for (let i = 0; i < 8; i += 1) {
+    const attempt = calculateSalary({ ...inputs, ctc: high });
+    if (attempt.inhandMonthly >= targetMonthly) break;
+    high *= 1.5;
+  }
+  let best = null;
+  for (let i = 0; i < 40; i += 1) {
+    const mid = (low + high) / 2;
+    const attempt = calculateSalary({ ...inputs, ctc: mid });
+    if (attempt.inhandMonthly >= targetMonthly) {
+      best = mid;
+      high = mid;
+    } else {
+      low = mid;
+    }
+  }
+  return best;
+}
+
+function updateSalaryCompare() {
+  if (!elements.salaryCompareA || !elements.salaryCompareB || !elements.salaryCompareResult) return;
+  const ctcA = numberOr(elements.salaryCompareA.value, null);
+  const ctcB = numberOr(elements.salaryCompareB.value, null);
+  if (ctcA === null || ctcB === null) {
+    elements.salaryCompareResult.textContent = "—";
+    return;
+  }
+  const inputs = readSalaryInputs();
+  const resultA = calculateSalary({ ...inputs, ctc: ctcA });
+  const resultB = calculateSalary({ ...inputs, ctc: ctcB });
+  const diff = resultB.inhandMonthly - resultA.inhandMonthly;
+  elements.salaryCompareResult.textContent = `Offer A: ${formatInr(
+    resultA.inhandMonthly
+  )}/mo | Offer B: ${formatInr(resultB.inhandMonthly)}/mo | Diff: ${formatInr(diff)}/mo`;
+}
+
 function populateUnitSelects(category) {
   if (!elements.unitFrom || !elements.unitTo) return;
   const table = UNIT_TABLES[category];
@@ -1176,6 +1803,16 @@ function parseNumber(value) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function numberOr(value, fallback) {
+  const parsed = parseNumber(value);
+  return parsed === null ? fallback : parsed;
+}
+
+function clampNumber(value, min, max) {
+  if (!Number.isFinite(value)) return min;
+  return Math.min(Math.max(value, min), max);
+}
+
 function formatNumber(value, digits = 6) {
   if (!Number.isFinite(value)) return "—";
   const abs = Math.abs(value);
@@ -1183,6 +1820,15 @@ function formatNumber(value, digits = 6) {
     return value.toExponential(3);
   }
   return new Intl.NumberFormat([], { maximumFractionDigits: digits }).format(value);
+}
+
+function formatInr(value, digits = 0) {
+  if (!Number.isFinite(value)) return "—";
+  const formatted = new Intl.NumberFormat("en-IN", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits
+  }).format(value);
+  return `INR ${formatted}`;
 }
 
 function formatCurrency(value) {
